@@ -1,3 +1,7 @@
+## TO-DO
+### Simple Summary of branch goal.
+We will modify the Makerates module in order to include temperature, radiation field, and visual extinction as parameters in the system of ODEs. Density is already included as a parameter, due to the freefall feature in the main branch of UCLCHEM. We will use the Density as a sort of template for including the other physical parameters. All physical parameters will have the form P(t) = A+Bt where P is the physical parameter, A & B are input coefficients, and t is the time. 
+
 # UCLCHEM
 `UCLCHEM` is a gas-grain chemical code that propagates the abundances of chemical species through a network of user-defined reactions according to the physical conditions of the gas. We provide several physical models to enable the modelling of different astrophysical environments and a utility script `MakeRates` to help the user produce a chemical network from simple lists of reactions and species.
 
