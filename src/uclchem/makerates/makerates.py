@@ -105,7 +105,7 @@ def get_network(
     path_to_species_file: Union[str, bytes, os.PathLike] = None,
     path_to_reaction_file: Union[str, bytes, os.PathLike] = None,
     verbosity=None,
-):
+    ):
     """In memory equivalent of Makerates, can either be used on the original input files
     for makerates, or on the output files that makerates generates. So either specify:
 

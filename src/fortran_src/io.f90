@@ -60,10 +60,16 @@ CONTAINS
         DOUBLE PRECISION, DIMENSION(:, :, :), OPTIONAL :: physicsarray
         DOUBLE PRECISION, DIMENSION(:, :, :), OPTIONAL :: chemicalabunarray
         DOUBLE PRECISION, DIMENSION(:, :, :), OPTIONAL :: ratesarray
+        INTEGER :: offset
         INTEGER, OPTIONAL :: dtime, timepoints
         INTEGER, intent(out) :: successflag
         LOGICAL :: returnArray, writerates
         successflag = 0
+        IF (evolving_physical_params) THEN
+            offset = 4
+        ELSE
+            offset = 1
+        ENDIF
         IF (returnArray) THEN
             ! Try to catch out of bounds errors before they create a segfault
             if (dtime .gt. timepoints+1) then
@@ -79,11 +85,11 @@ CONTAINS
                 physicsarray(dtime, dstep, 6) = radfield
                 physicsarray(dtime, dstep, 7) = zeta
                 physicsarray(dtime, dstep, 8) = dstep
-                chemicalabunarray(dtime, dstep, :) = abund(:neq-1,dstep)
+                chemicalabunarray(dtime, dstep, :) = abund(:neq-offset,dstep)
             end if 
         ELSE IF (fullOutput .AND. .NOT. returnArray) THEN
             WRITE(outputId,8020) timeInYears,density(dstep),gasTemp(dstep),dustTemp(dstep),&
-            av(dstep),radfield,zeta,dstep,abund(:neq-1,dstep)
+            av(dstep),radfield,zeta,dstep,abund(:neq-offset,dstep)
             8020 FORMAT(1pe11.3,',',1pe11.4,',',0pf8.2,',',0pf8.2,',',1pe11.4,',',1pe11.4,&
             &','1pe11.4,',',I4,',',(999(1pe15.5,:,',')))
         END IF

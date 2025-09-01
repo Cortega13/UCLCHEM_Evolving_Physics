@@ -435,7 +435,6 @@ def write_odes_f90(
         logging.debug(f"{species_names.index(specie)+1}:{specie}")
         for specie in species_list
     ]
-
     for i, reaction in enumerate(reaction_list):
         logging.debug(f"RATE({i+1}):{reaction}")
         reaction.generate_ode_bit(i, species_names)
@@ -567,10 +566,12 @@ def build_ode_string(
     ode_string = """MODULE ODES
 USE constants
 USE network
+USE DEFAULTPARAMETERS
 IMPLICIT NONE
 CONTAINS
-SUBROUTINE GETYDOT(RATE, Y, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, YDOT)
+SUBROUTINE GETYDOT(RATE, Y, YDOT, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, Tg, Td, AV, G0, CRIR)
 REAL(dp), INTENT(IN) :: RATE(:), Y(:), bulkLayersReciprocal, safeMantle, safebulk, D
+REAL(dp), INTENT(IN), OPTIONAL :: Tg, Td, AV, G0, CRIR
 REAL(dp), INTENT(INOUT) :: YDOT(:), surfaceCoverage
 REAL(dp) :: totalSwap, LOSS, PROD
     """
@@ -586,6 +587,7 @@ REAL(dp) :: totalSwap, LOSS, PROD
         for n, reaction in enumerate(reaction_list):
             ode_string += truncate_line(f"REACTIONRATE({n+1})={reaction.ode_bit}\n")
 
+    # Now we need to add the ydot equations for each species
     for n, species in enumerate(species_list):
         ydot_string = species_ode_string(n, species)
         ode_string += ydot_string

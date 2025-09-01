@@ -7,17 +7,6 @@ MODULE RATES
     USE SurfaceReactions
     use photoreactions, only: H2PhotoDissRate, COPhotoDissRate, cIonizationRate, ICE_GAS_PHOTO_CROSSSECTION_RATIO
     IMPLICIT NONE
-
-    !Variables controlling chemistry:
-    LOGICAL :: PARAMETERIZE_H2FORM=.True.
-    REAL(dp) :: grainArea,cion,h2dis,lastTemp=0.0
-
-    ! Controlling ice chemistry
-    REAL(dp), PARAMETER :: h2StickingZero=0.87d0,hStickingZero=1.0d0, h2StickingTemp=87.0d0,hStickingTemp=52.0d0
-    !Flags to control desorption processes
-    REAL(dp) :: turbVel=1.0
-
-    
 CONTAINS
     SUBROUTINE calculateReactionRates(abund, safemantle,  h2col, cocol, ccol, rate)
         REAL(dp), INTENT(IN) :: abund(:, :), safemantle, h2col, cocol, ccol
@@ -31,6 +20,32 @@ CONTAINS
         !Assuming the user has temperature changes or uses the desorption features of phase 1,
         !these need to be recalculated every time step.
 
+        ! Up here we will include all the reactions which are included in the odes.f90 already by carlos. Note: We have to manually set rate=1 to initalize them.
+        !Initialize twobody reactions. 
+        idx1=twobodyReacs(1)
+        idx2=twobodyReacs(2)
+        IF (idx1 .ne. idx2) THEN
+            rate(idx1:idx2) = 1
+        ENDIF
+
+        !UV photons, radfield has (factor of 1.7 conversion from habing to Draine)
+        idx1=photonReacs(1)
+        idx2=photonReacs(2)
+        IF (idx1 .ne. idx2) THEN
+            rate(idx1:idx2) = 1
+        ENDIF
+
+        !Reactions involving cosmic ray induced photon
+        idx1=crphotReacs(1)
+        idx2=crphotReacs(2)
+        IF (idx1 .ne. idx2) THEN
+            rate(idx1:idx2) = 1
+        END IF
+
+
+
+        ! These are reactions which are untouched by carlos.
+
         ! CRP
         idx1=crpReacs(1)
         idx2=crpReacs(2)
@@ -41,39 +56,8 @@ CONTAINS
             rate(nR_H2_CRP)=h2CRPRate
         END IF
 
-        !UV photons, radfield has (factor of 1.7 conversion from habing to Draine)
-        idx1=photonReacs(1)
-        idx2=photonReacs(2)
-        IF (idx1 .ne. idx2) THEN
-            rate(idx1:idx2) = alpha(idx1:idx2)*dexp(-gama(idx1:idx2)*av(dstep))*radfield/1.7
-            ! For all solid species, decrease rate by 0.3 (Kalvans 2018)
-            ! For bulk species, also decrease rate by (1-Pabs)**(Bs+0.5*Bb) (Kalvans 2014)
-            DO j=idx1,idx2
-                IF (ANY(bulkList==re1(j))) THEN
-                    rate(j) = rate(j) * ICE_GAS_PHOTO_CROSSSECTION_RATIO * (1.0-0.007)**(1.0+0.5/bulkLayersReciprocal)
-                ELSE IF (ANY(surfaceList==re1(j))) THEN
-                    rate(j) = rate(j) * ICE_GAS_PHOTO_CROSSSECTION_RATIO
-                END IF
-            END DO 
-        END IF
 
-        !Reactions involving cosmic ray induced photon
-        idx1=crphotReacs(1)
-        idx2=crphotReacs(2)
-        IF (idx1 .ne. idx2) THEN
-            rate(idx1:idx2)=alpha(idx1:idx2)*gama(idx1:idx2)*1.0/(1.0-omega)*zeta*(gasTemp(dstep)/300)**beta(idx1:idx2)
-            ! For all solid species, decrease rate by 0.3 (Kalvans 2018)
-            ! For bulk species, also decrease rate by (1-Pabs)**(Bs+0.5*Bb) (Kalvans 2014)
-            DO j=idx1,idx2
-                IF (ANY(bulkList==re1(j))) THEN
-                    rate(j) = rate(j) * ICE_GAS_PHOTO_CROSSSECTION_RATIO * (1-0.007)**(1+0.5/bulkLayersReciprocal)
-                ELSE IF (ANY(surfaceList==re1(j))) THEN
-                    rate(j) = rate(j) * ICE_GAS_PHOTO_CROSSSECTION_RATIO
-                END IF
-            END DO 
-        END IF
-
-        !freeze out only happens if freezeFactor>0 and depending on evap choice 
+        !freeze out only happens if freezeFactor>0 and depending on evap choice
         idx1=freezeReacs(1)
         idx2=freezeReacs(2)
         IF (idx1 .ne. idx2) THEN
@@ -84,11 +68,29 @@ CONTAINS
             rate(nR_H2Freeze)=stickingCoefficient(h2StickingZero,h2StickingTemp,gasTemp(dstep))*rate(nR_H2Freeze)
             rate(nR_HFreeze)=stickingCoefficient(hStickingZero,hStickingTemp,gasTemp(dstep))*rate(nR_HFreeze)
         END IF
+
+        !Account for Eley-Rideal reactions in a similar way.
+        !First calculate overall rate and then split between desorption and sticking
+        idx1=erReacs(1)
+        idx2=erReacs(2)
+        if (idx1 .ne. idx2) THEN
+            rate(idx1:idx2)=freezeOutRate(idx1,idx2) *dexp(-gama(idx1:idx2)/dustTemp(dstep))
+            rate(erdesReacs(1):erdesReacs(2))=rate(idx1:idx2)
+            !calculate fraction of reaction that goes down desorption route
+            idx1=erdesReacs(1)
+            idx2=erdesReacs(2)
+            DO j=idx1,idx2
+                rate(j)=desorptionFraction(j)*rate(j)
+                IF (ANY(bulkList==re1(j))) rate(j)=0.0 ! Bulk species are not able to chemically desorb
+            END DO
+            !remove that fraction from total rate of the diffusion route
+            rate(erReacs(1):erReacs(2))=rate(erReacs(1):erReacs(2))-rate(idx1:idx2)
+        END IF
+        
         ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !The below desorption mechanisms are from Roberts et al. 2007 MNRAS with
         !the addition of direct UV photodesorption. DESOH2,DESCR1,DEUVCR
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
         !Desorption due to energy released by H2 Formations
         idx1=desoh2Reacs(1)
         idx2=desoh2Reacs(2)
@@ -261,44 +263,17 @@ CONTAINS
             END IF
         END IF
 
-    !Account for Eley-Rideal reactions in a similar way.
-    !First calculate overall rate and then split between desorption and sticking
-    idx1=erReacs(1)
-    idx2=erReacs(2)
-    if (idx1 .ne. idx2) THEN
-        rate(idx1:idx2)=freezeOutRate(idx1,idx2)
-        rate(idx1:idx2)=rate(idx1:idx2)*dexp(-gama(idx1:idx2)/dustTemp(dstep))
-        rate(erdesReacs(1):erdesReacs(2))=rate(idx1:idx2)
-        !calculate fraction of reaction that goes down desorption route
-        idx1=erdesReacs(1)
-        idx2=erdesReacs(2)
-        DO j=idx1,idx2
-            rate(j)=desorptionFraction(j)*rate(j)
-            IF (ANY(bulkList==re1(j))) rate(j)=0.0 ! Bulk species are not able to chemically desorb
-        END DO
-        !remove that fraction from total rate of the diffusion route
-        rate(erReacs(1):erReacs(2))=rate(erReacs(1):erReacs(2))-rate(idx1:idx2)
-    END IF
+        IF (PARAMETERIZE_H2FORM) THEN
+            rate(nR_H2Form_CT)=h2FormEfficiency(dustTemp(dstep),dustTemp(dstep))
+            !rate(nR_H2Form_LH)=0.0
+            rate(nR_H2Form_ER)=0.0
+            !rate(nR_H2Form_LHDes)=0.0
+            rate(nR_H2Form_ERDes)=0.0
+        ELSE
+            rate(nR_H2Form_CT)= 0.0
+        END IF
 
-    IF (PARAMETERIZE_H2FORM) THEN
-        rate(nR_H2Form_CT)=h2FormEfficiency(dustTemp(dstep),dustTemp(dstep))
-        !rate(nR_H2Form_LH)=0.0
-        rate(nR_H2Form_ER)=0.0
-        !rate(nR_H2Form_LHDes)=0.0
-        rate(nR_H2Form_ERDes)=0.0
-    ELSE
-        rate(nR_H2Form_CT)= 0.0
-    END IF
-
-    CALL bulkSurfaceExchangeReactions(rate,dustTemp(dstep))
-    
-    !Basic gas phase reactions 
-    !They only change if temperature has so we can save time with an if statement
-    idx1=twobodyReacs(1)
-    idx2=twobodyReacs(2)
-    IF (lastTemp .ne. gasTemp(dstep)) THEN
-        rate(idx1:idx2) = alpha(idx1:idx2)*((gasTemp(dstep)/300.)**beta(idx1:idx2))*dexp(-gama(idx1:idx2)/gasTemp(dstep)) 
-    END IF
+        CALL bulkSurfaceExchangeReactions(rate,dustTemp(dstep))
 
         idx1=ionopol1Reacs(1)
         idx2=ionopol1Reacs(2)

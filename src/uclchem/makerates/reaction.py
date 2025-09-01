@@ -601,7 +601,7 @@ class Reaction:
             return False
 
     def generate_ode_bit(self, i: int, species_names: list):
-        self.ode_bit = _generate_reaction_ode_bit(i, species_names, self.body_count, self.get_reactants())
+        self.ode_bit = _generate_reaction_ode_bit(self, i, species_names, self.body_count, self.get_reactants())
 
     def to_UCL_format(self):
         """Convert a reaction to UCLCHEM reaction file format"""
@@ -772,7 +772,7 @@ class CoupledReaction(Reaction):
     def get_partner(self):
         return self.partner
 
-def _generate_reaction_ode_bit(i: int, species_names: list, body_count: int, reactants: list[str]):
+def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: int, reactants: list[str]):
         """Every reaction contributes a fixed rate of change to whatever species it
         affects. We create the string of fortran code describing that change here.
 
@@ -782,10 +782,12 @@ def _generate_reaction_ode_bit(i: int, species_names: list, body_count: int, rea
             body_count (bool): Number of bodies in the reaction, used to determine how many factors of density to include
             reactants (list[str]): The reactants of the reaction
         """
+        
         ode_bit = f"+RATE({i + 1})"
         # every body after the first requires a factor of density
         for body in range(body_count):
             ode_bit = ode_bit + "*D"
+        
 
         # then bring in factors of abundances
         for species in reactants:
@@ -808,4 +810,41 @@ def _generate_reaction_ode_bit(i: int, species_names: list, body_count: int, rea
         if "LH" in reactants[2]:
             if "@" in reactants[0]:
                 ode_bit += "*bulkLayersReciprocal"
+        
+        
+        # We are going to include all variables of the rate coefficients which include physical parameters {T, AV, G0, D}.
+        alpha = self.get_alpha()
+        gamma = self.get_gamma()
+        beta = self.get_beta()
+
+
+        if self.get_reaction_type() == "PHOTON":
+            alpha = self.get_alpha()
+            gamma = self.get_gamma()
+            ode_bit += f"*{alpha}*dexp(-{gamma}*AV)*G0/1.7"
+            
+            # For all solid (bulk&surface) species, decrease rate by ICE_GAS_PHOTO_CROSSSECTION_RATIO (0.3) (Kalvans 2018)
+            if "@" in self.get_reactants()[0]:
+                # For bulk species, also decrease rate by (1-Pabs)**(Bs+0.5*Bb) (Kalvans 2014)
+                ode_bit += f"*ICE_GAS_PHOTO_CROSSSECTION_RATIO * (1.0-0.007)**(1.0+0.5/bulkLayersReciprocal)"
+            elif "#" in self.get_reactants()[0]:
+                ode_bit += f"*ICE_GAS_PHOTO_CROSSSECTION_RATIO"
+
+
+        if self.get_reaction_type() == "CRPHOT":
+            ode_bit += f"*{alpha}*{gamma}*(1.0/(1.0-omega))*CRIR*(Tg/300)**{beta}"
+            
+            # For all solid (bulk&surface) species, decrease rate by ICE_GAS_PHOTO_CROSSSECTION_RATIO (0.3) (Kalvans 2018)
+            if "@" in self.get_reactants()[0]:
+                # For bulk species, also decrease rate by (1-Pabs)**(Bs+0.5*Bb) (Kalvans 2014)
+                ode_bit += f"*ICE_GAS_PHOTO_CROSSSECTION_RATIO * (1.0-0.007)**(1.0+0.5/bulkLayersReciprocal)"
+            elif "#" in self.get_reactants()[0]:
+                ode_bit += f"*ICE_GAS_PHOTO_CROSSSECTION_RATIO"
+
+
+        if self.get_reaction_type() == "TWOBODY":
+            ode_bit += f"*{alpha}*(Tg/300.0)**{beta}*dexp(-{gamma}/Tg)"
+
+
+
         return ode_bit
