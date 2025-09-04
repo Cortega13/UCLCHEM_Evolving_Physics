@@ -600,8 +600,8 @@ class Reaction:
         else:
             return False
 
-    def generate_ode_bit(self, i: int, species_names: list):
-        self.ode_bit = _generate_reaction_ode_bit(self, i, species_names, self.body_count, self.get_reactants())
+    def generate_ode_bit(self, i: int, species_names: list, therm_desorption_idx: int):
+        self.ode_bit = _generate_reaction_ode_bit(self, i, species_names, self.body_count, self.get_reactants(), therm_desorption_idx)
 
     def to_UCL_format(self):
         """Convert a reaction to UCLCHEM reaction file format"""
@@ -772,7 +772,7 @@ class CoupledReaction(Reaction):
     def get_partner(self):
         return self.partner
 
-def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: int, reactants: list[str]):
+def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: int, reactants: list[str], therm_desorption_idx: int):
         """Every reaction contributes a fixed rate of change to whatever species it
         affects. We create the string of fortran code describing that change here.
 
@@ -818,6 +818,8 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
         beta = self.get_beta()
 
 
+        # Carlos moved the reactinos in rates.f90 into here so that they are within odes.f90 instead. 
+
         if self.get_reaction_type() == "PHOTON":
             alpha = self.get_alpha()
             gamma = self.get_gamma()
@@ -832,7 +834,7 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
 
 
         if self.get_reaction_type() == "CRPHOT":
-            ode_bit += f"*{alpha}*{gamma}*(1.0/(1.0-omega))*CRIR*(Tg/300)**{beta}"
+            ode_bit += f"*{alpha}*{gamma}*(1.0/(1.0-omega))*CRIR*(Tg/300)**({beta})"
             
             # For all solid (bulk&surface) species, decrease rate by ICE_GAS_PHOTO_CROSSSECTION_RATIO (0.3) (Kalvans 2018)
             if "@" in self.get_reactants()[0]:
@@ -843,8 +845,25 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
 
 
         if self.get_reaction_type() == "TWOBODY":
-            ode_bit += f"*{alpha}*(Tg/300.0)**{beta}*dexp(-{gamma}/Tg)"
+            if gamma == 0.0:
+                ode_bit += f"*{alpha}*(Tg/300.0)**{beta}"
+            else:
+                ode_bit += f"*{alpha}*(Tg/300.0)**{beta}*dexp(-{gamma}/Tg)"
 
+        if self.get_reaction_type() == "FREEZE":
+            ode_bit += f"*(1.0+{beta}*16.71d-4/(GRAIN_RADIUS*Tg))*freezeFactor*{alpha}*THERMAL_VEL*dsqrt(Tg/mass(re1({i+1})))*GRAIN_CROSSSECTION_PER_H"
 
+        if self.get_reaction_type() == "DESOH2":
+            rate = "0.5D0*(1.45D5*SQRT(Tg/1.0D2))*(SILICATE_CROSS_SECTION*(1.0D0/(1.0D0+(SILICATE_MU*(1.0D-10)/(2*SILICATE_NU_H2*EXP(-SILICATE_E_H2/Td)))+(1.0D0*(1.0D0+SQRT((SILICATE_E_HC-SILICATE_E_S)/(SILICATE_E_HP-SILICATE_E_S)))**2 /4.0D0*EXP(-SILICATE_E_S/Td)))*(1.0D0/(1.0D0+SILICATE_NU_HC/(2*(1.0D-10))*EXP(-1.5*SILICATE_E_HC/Td) *(1.0D0+SQRT((SILICATE_E_HC-SILICATE_E_S)/(SILICATE_E_HP-SILICATE_E_S)))**2))) + GRAPHITE_CROSS_SECTION*(1.0D0/(1.0D0+(GRAPHITE_MU*(1.0D-10)/(2*GRAPHITE_NU_H2*EXP(-GRAPHITE_E_H2/Td)))+(1.0D0*(1.0D0+SQRT((GRAPHITE_E_HC-GRAPHITE_E_S)/(GRAPHITE_E_HP-GRAPHITE_E_S)))**2 /4.0D0*EXP(-GRAPHITE_E_S/Td)))*(1.0D0/(1.0D0+GRAPHITE_NU_HC/(2*(1.0D-10))*EXP(-11.5*GRAPHITE_E_HC/Td) *(1.0D0+SQRT((GRAPHITE_E_HC-GRAPHITE_E_S)/(GRAPHITE_E_HP-GRAPHITE_E_S)))**2))))*(1.0D0/(1.0D0+0.04D0*SQRT(Tg+Td) + 0.2D0*(Tg/1.0D2)+0.08D0*(Tg/1.0D2)**2))"
+            ode_bit += f"*(epsilon*({rate}))"
+        
+        if self.get_reaction_type() == "THERM":
+            if therm_desorption_idx > 0:
+                ode_bit += f"*dsqrt(VDIFF_PREFACTOR*bindingEnergy({therm_desorption_idx})/mass(iceList({therm_desorption_idx}))) * exp(-{gamma}/Td)"
 
+        # Setting individual ones.
+        # Parameterize h2 formation. nR_H2Form_CT=662
+        if i+1 == 662:
+            rate = "0.5D0*(1.45D5*SQRT(Td/1.0D2))*(SILICATE_CROSS_SECTION*(1.0D0/(1.0D0+(SILICATE_MU*(1.0D-10)/(2*SILICATE_NU_H2*EXP(-SILICATE_E_H2/Td)))+(1.0D0*(1.0D0+SQRT((SILICATE_E_HC-SILICATE_E_S)/(SILICATE_E_HP-SILICATE_E_S)))**2 /4.0D0*EXP(-SILICATE_E_S/Td)))*(1.0D0/(1.0D0+SILICATE_NU_HC/(2*(1.0D-10))*EXP(-1.5*SILICATE_E_HC/Td) *(1.0D0+SQRT((SILICATE_E_HC-SILICATE_E_S)/(SILICATE_E_HP-SILICATE_E_S)))**2))) + GRAPHITE_CROSS_SECTION*(1.0D0/(1.0D0+(GRAPHITE_MU*(1.0D-10)/(2*GRAPHITE_NU_H2*EXP(-GRAPHITE_E_H2/Td)))+(1.0D0*(1.0D0+SQRT((GRAPHITE_E_HC-GRAPHITE_E_S)/(GRAPHITE_E_HP-GRAPHITE_E_S)))**2 /4.0D0*EXP(-GRAPHITE_E_S/Td)))*(1.0D0/(1.0D0+GRAPHITE_NU_HC/(2*(1.0D-10))*EXP(-11.5*GRAPHITE_E_HC/Td) *(1.0D0+SQRT((GRAPHITE_E_HC-GRAPHITE_E_S)/(GRAPHITE_E_HP-GRAPHITE_E_S)))**2))))*(1.0D0/(1.0D0+0.04D0*SQRT(Td+Td) + 0.2D0*(Td/1.0D2)+0.08D0*(Td/1.0D2)**2))"
+            ode_bit += f"*({rate})"
         return ode_bit

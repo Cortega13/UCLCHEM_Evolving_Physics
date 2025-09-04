@@ -42,6 +42,84 @@ CONTAINS
             rate(idx1:idx2) = 1
         END IF
 
+        !freeze out only happens if freezeFactor>0 and depending on evap choice
+        idx1=freezeReacs(1)
+        idx2=freezeReacs(2)
+        IF (idx1 .ne. idx2) THEN
+            IF ((freezeFactor .eq. 0.0) .or. (dustTemp(dstep) .gt. MAX_GRAIN_TEMP)) then
+                rate(idx1:idx2) = 0
+            ELSE
+                rate(idx1:idx2)= 1! freezeOutRate(idx1,idx2)
+            ENDIF
+            !freeze out rate uses thermal velocity but mass of E is 0 giving us infinite rates
+            !just assume it's same as H
+            rate(nR_EFreeze)=rate(nR_HFreeze)
+            rate(nR_H2Freeze)=stickingCoefficient(h2StickingZero,h2StickingTemp,gasTemp(dstep))*rate(nR_H2Freeze)
+            rate(nR_HFreeze)=stickingCoefficient(hStickingZero,hStickingTemp,gasTemp(dstep))*rate(nR_HFreeze)
+        END IF
+
+        !Desorption due to energy released by H2 Formations. !The below desorption mechanisms are from Roberts et al. 2007 MNRAS with the addition of direct UV photodesorption. DESOH2,DESCR1,DEUVCR
+        idx1=desoh2Reacs(1)
+        idx2=desoh2Reacs(2)
+        IF (idx1 .ne. idx2) THEN
+            IF ((desorb) .and. (h2desorb) .and. (safeMantle .gt. MIN_SURFACE_ABUND)) THEN
+                !Epsilon is efficieny of this process, number of molecules removed per event
+                !h2form is formation rate of h2, dependent on hydrogen abundance. 
+                rate(idx1:idx2) = 1 !epsilon*h2FormEfficiency(gasTemp(dstep),dustTemp(dstep))
+
+                !Don't remove species with binding energy > max BE removed by this process
+                WHERE(gama(idx1:idx2) .gt. ebmaxh2) rate(idx1:idx2)=0.0 
+            ELSE
+                rate(idx1:idx2) = 0.0
+            ENDIF
+            !turn off freeze out if desorption due to H2 formation is much faster
+            !both rates combine with density to get rate of change so drop that factor
+            WHERE((rate(freezePartners)*abund(re1(freezePartners),dstep))<&
+            &MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+        END IF
+
+        ! Parameterize H2 Formation
+        IF (PARAMETERIZE_H2FORM) THEN
+            rate(nR_H2Form_CT) = 1 !h2FormEfficiency(dustTemp(dstep),dustTemp(dstep))
+            !rate(nR_H2Form_LH)=0.0
+            rate(nR_H2Form_ER)=0.0
+            !rate(nR_H2Form_LHDes)=0.0
+            rate(nR_H2Form_ERDes)=0.0
+        ELSE
+            rate(nR_H2Form_CT)= 0.0
+        END IF
+
+        !Continuous Thermal Desorption. Reactions can be generated through a flag in Makerates
+        idx1=thermReacs(1)
+        idx2=thermReacs(2)
+        IF (idx1 .ne. idx2) THEN
+            IF (thermdesorb) THEN
+                DO j=idx1,idx2
+                    !then try to overwrite with position in grain array
+                    DO i=lbound(iceList,1),ubound(iceList,1)
+                        !See Cuppen, Walsh et al. 2017 review (section 4.1)
+                        IF (iceList(i) .eq. re1(j)) THEN
+                            !Basic rate at which thermal desorption occurs
+                            rate(j)= 1 !dsqrt(VDIFF_PREFACTOR*bindingEnergy(i)/mass(iceList(i))) * exp(-gama(j)/dustTemp(dstep))
+                            !factor of 2.0 adjusts for fact only top two monolayers (Eq 8)
+                            !becayse GRAIN_SURFACEAREA_PER_H is per H nuclei, multiplying it by density gives area/cm-3
+                            !that is roughly sigma_g.n_g from cuppen et al. 2017 but using surface instead of cross-sectional
+                            !area seems more correct for this process.
+                            IF (.NOT. THREE_PHASE) rate(j)=rate(j)*2.0*SURFACE_SITE_DENSITY*GRAIN_SURFACEAREA_PER_H
+                        END IF
+                    END DO
+                END DO
+                !At some point, rate is so fast that there's no point freezing out any more
+                !Save the integrator some trouble and turn freeze out off
+                WHERE(rate(freezePartners)*abund(re1(freezePartners),dstep)*density(dstep)&
+                &<MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+                IF (safeMantle .lt. MIN_SURFACE_ABUND) rate(idx1:idx2)=0.0
+            ELSE
+                rate(idx1:idx2)=0.0
+            END IF
+        END IF
+
+
 
 
         ! These are reactions which are untouched by carlos.
@@ -54,19 +132,6 @@ CONTAINS
         END IF
         IF (improvedH2CRPDissociation) THEN
             rate(nR_H2_CRP)=h2CRPRate
-        END IF
-
-
-        !freeze out only happens if freezeFactor>0 and depending on evap choice
-        idx1=freezeReacs(1)
-        idx2=freezeReacs(2)
-        IF (idx1 .ne. idx2) THEN
-            rate(idx1:idx2)=freezeOutRate(idx1,idx2)
-            !freeze out rate uses thermal velocity but mass of E is 0 giving us infinite rates
-            !just assume it's same as H
-            rate(nR_EFreeze)=rate(nR_HFreeze)
-            rate(nR_H2Freeze)=stickingCoefficient(h2StickingZero,h2StickingTemp,gasTemp(dstep))*rate(nR_H2Freeze)
-            rate(nR_HFreeze)=stickingCoefficient(hStickingZero,hStickingTemp,gasTemp(dstep))*rate(nR_HFreeze)
         END IF
 
         !Account for Eley-Rideal reactions in a similar way.
@@ -87,29 +152,6 @@ CONTAINS
             rate(erReacs(1):erReacs(2))=rate(erReacs(1):erReacs(2))-rate(idx1:idx2)
         END IF
         
-        ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !The below desorption mechanisms are from Roberts et al. 2007 MNRAS with
-        !the addition of direct UV photodesorption. DESOH2,DESCR1,DEUVCR
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !Desorption due to energy released by H2 Formations
-        idx1=desoh2Reacs(1)
-        idx2=desoh2Reacs(2)
-        IF (idx1 .ne. idx2) THEN
-            IF ((desorb) .and. (h2desorb) .and. (safeMantle .gt. MIN_SURFACE_ABUND)) THEN
-                !Epsilon is efficieny of this process, number of molecules removed per event
-                !h2form is formation rate of h2, dependent on hydrogen abundance. 
-                rate(idx1:idx2) = epsilon*h2FormEfficiency(gasTemp(dstep),dustTemp(dstep))
-
-                !Don't remove species with binding energy > max BE removed by this process
-                WHERE(gama(idx1:idx2) .gt. ebmaxh2) rate(idx1:idx2)=0.0 
-            ELSE
-                rate(idx1:idx2) = 0.0
-            ENDIF
-            !turn off freeze out if desorption due to H2 formation is much faster
-            !both rates combine with density to get rate of change so drop that factor
-            WHERE((rate(freezePartners)*abund(re1(freezePartners),dstep))<&
-            &MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
-        END IF
         !Desorption due to energy from cosmic rays
         idx1=descrReacs(1)
         idx2=descrReacs(2)
@@ -200,38 +242,6 @@ CONTAINS
             END DO 
         END IF  
 
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !Continuous Thermal Desorption. Reactions can be generated through a flag in Makerates
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        idx1=thermReacs(1)
-        idx2=thermReacs(2)
-        IF (idx1 .ne. idx2) THEN
-            IF (thermdesorb) THEN
-                DO j=idx1,idx2
-                    !then try to overwrite with position in grain array
-                    DO i=lbound(iceList,1),ubound(iceList,1)
-                        !See Cuppen, Walsh et al. 2017 review (section 4.1)
-                        IF (iceList(i) .eq. re1(j)) THEN
-                            !Basic rate at which thermal desorption occurs
-                            rate(j)=vdiff(i)*exp(-gama(j)/dustTemp(dstep))
-                            !factor of 2.0 adjusts for fact only top two monolayers (Eq 8)
-                            !becayse GRAIN_SURFACEAREA_PER_H is per H nuclei, multiplying it by density gives area/cm-3
-                            !that is roughly sigma_g.n_g from cuppen et al. 2017 but using surface instead of cross-sectional
-                            !area seems more correct for this process.
-                            IF (.NOT. THREE_PHASE) rate(j)=rate(j)*2.0*SURFACE_SITE_DENSITY*GRAIN_SURFACEAREA_PER_H
-                        END IF
-                    END DO
-                END DO
-                !At some point, rate is so fast that there's no point freezing out any more
-                !Save the integrator some trouble and turn freeze out off
-                WHERE(rate(freezePartners)*abund(re1(freezePartners),dstep)*density(dstep)&
-                &<MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
-                IF (safeMantle .lt. MIN_SURFACE_ABUND) rate(idx1:idx2)=0.0
-            ELSE
-                rate(idx1:idx2)=0.0
-            END IF
-        END IF
-
 
     !Reactions on surface can be treated considering diffusion of reactants
     !as in Langmuir-Hinshelwood mechanism
@@ -263,16 +273,6 @@ CONTAINS
             END IF
         END IF
 
-        IF (PARAMETERIZE_H2FORM) THEN
-            rate(nR_H2Form_CT)=h2FormEfficiency(dustTemp(dstep),dustTemp(dstep))
-            !rate(nR_H2Form_LH)=0.0
-            rate(nR_H2Form_ER)=0.0
-            !rate(nR_H2Form_LHDes)=0.0
-            rate(nR_H2Form_ERDes)=0.0
-        ELSE
-            rate(nR_H2Form_CT)= 0.0
-        END IF
-
         CALL bulkSurfaceExchangeReactions(rate,dustTemp(dstep))
 
         idx1=ionopol1Reacs(1)
@@ -294,11 +294,7 @@ CONTAINS
         WHERE(.not. ExtrapolateRates .and. (gasTemp(dstep) .lt. minTemps)) rate=0.0
 
         WHERE(.not. ExtrapolateRates .and. (gasTemp(dstep) .gt. maxTemps)) rate=0.0
-
-        !Overwrite reactions for which we have a more detailed photoreaction treatment
-        rate(nR_H2_hv)=H2PhotoDissRate(h2Col,radField,av(dstep),turbVel)!H2 photodissociation
-        rate(nR_CO_hv)=COPhotoDissRate(h2Col,coCol,radField,av(dstep)) !CO photodissociation
-        rate(nR_C_hv)=cIonizationRate(alpha(nR_C_hv),gama(nR_C_hv),gasTemp(dstep),ccol,h2col,av(dstep),radfield) !C photoionization
+    
     END SUBROUTINE calculateReactionRates
 
 
@@ -319,8 +315,7 @@ FUNCTION freezeOutRate(idx1,idx2) RESULT(freezeRates)
     IF ((freezeFactor .eq. 0.0) .or. (dustTemp(dstep) .gt. MAX_GRAIN_TEMP)) then
         freezeRates=0.0
     ELSE
-        freezeRates=freezeRates*freezeFactor*alpha(idx1:idx2)*THERMAL_VEL&
-        &*dsqrt(gasTemp(dstep)/mass(re1(idx1:idx2)))*GRAIN_CROSSSECTION_PER_H
+        freezeRates=freezeRates*freezeFactor*alpha(idx1:idx2)*THERMAL_VEL*dsqrt(gasTemp(dstep)/mass(re1(idx1:idx2)))*GRAIN_CROSSSECTION_PER_H
     END IF
 
     END FUNCTION freezeOutRate

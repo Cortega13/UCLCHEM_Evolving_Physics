@@ -118,10 +118,8 @@ CONTAINS
         ENDIF
         !Initial calculations of diffusion frequency for each species bound to grain
         !and other parameters required for diffusion reactions
-        DO  i=lbound(iceList,1),ubound(iceList,1)
-            j=iceList(i)
-            vdiff(i)=VDIFF_PREFACTOR*bindingEnergy(i)/mass(j)
-            vdiff(i)=dsqrt(vdiff(i))
+        DO i=lbound(iceList,1),ubound(iceList,1)
+            vdiff(i)=dsqrt(VDIFF_PREFACTOR*bindingEnergy(i)/mass(iceList(i)))
         END DO
 
         ! get list of positive-charged species to conserve charge later
@@ -335,6 +333,7 @@ CONTAINS
         ELSE
             D=y(NEQ)
             AV_ = av(dstep)
+            Tg = gasTemp(dstep)
         ENDIF
 
         ydot=0.0
@@ -348,6 +347,7 @@ CONTAINS
         h2col=h2ColToCell+0.5*Y(nh2)*D*(cloudSize/real(points))
         rate(nR_H2_hv)=H2PhotoDissRate(h2Col,radField,AV_,turbVel) !H2 photodissociation
         rate(nR_CO_hv)=COPhotoDissRate(h2Col,coCol,radField,AV_) !CO photodissociation
+        rate(nR_C_hv)=cIonizationRate(alpha(nR_C_hv),gama(nR_C_hv),Tg,ccol,h2col,AV_,G0) !C photoionization
         end if
 
         !recalculate coefficients for ice processes
@@ -371,42 +371,42 @@ CONTAINS
         ! https://ui.adsabs.harvard.edu/abs/2001ApJ...563..842W/abstract
         ! For now, we tack this onto the ODES; We should include this in ODEs.f90.
         ! TODO: add k(re(1)==E-)=0.0 as a check somwhere.
-        phi_temp = radfield * exp(-2.5*AV_) * sqrt(gasTemp(dstep)) / (D*y(nelec)) ! phi_temp = G T^0.5 / n_e
+        phi_temp = radfield * exp(-2.5*AV_) * sqrt(Tg) / (D*y(nelec)) ! phi_temp = G T^0.5 / n_e
         ! Ensure phi is within the 1e2 to 1e6 range from the paper:
         phi_temp = min(max(phi_temp,1e2), 1e6)
         ! H
         cgr = (/ 8.074e-6, 1.378, 5.087e2, 1.586e-2, 0.4723, 1.102e-5 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 12.25e-14 / denom
         ydot(nhx) = ydot(nhx) - grec*y(nhx)*D
         ydot(nh) = ydot(nh) + grec*y(nhx)*D
         ! He
         cgr = (/ 3.185e-7, 1.512, 5.115e3, 3.903e-7, 0.4956, 5.494e-7 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 5.572e-14 / denom
         ydot(nhex) = ydot(nhex) - grec*y(nhex)*D
         ydot(nhe) = ydot(nhe) + grec*y(nhex)*D
         ! C
         cgr = (/ 6.089e-3, 1.128, 4.331e2, 4.845e-2, 0.8120, 1.333e-4 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 45.58e-14 / denom
         ydot(ncx) = ydot(ncx) - grec*y(ncx)*D
         ydot(nc) = ydot(nc) + grec*y(ncx)*D
         ! Mg
         cgr = (/ 8.116e-8, 1.864, 6.170e4, 2.169e-6, 0.9605, 7.232e-5 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 2.510e-14 / denom
         ydot(nmgx) = ydot(nmgx) - grec*y(nmgx)*D
         ydot(nmg) = ydot(nmg) + grec*y(nmgx)*D
         ! S
         cgr = (/ 7.769e-5, 1.319, 1.087e2, 3.475e-1, 0.4790, 4.689e-2 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 3.064e-14 / denom
         ydot(nsx) = ydot(nsx) - grec*y(nsx)*D
         ydot(ns) = ydot(ns) + grec*y(nsx)*D
         ! Si
         cgr = (/ 5.678e-8, 1.874, 4.375e4, 1.635e-6, 0.8964, 7.538e-5 /)
-        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * gasTemp(dstep)**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(gasTemp(dstep))))
+        denom = 1. + cgr(1) * phi_temp**cgr(2) * (1. + cgr(3) * Tg**cgr(4) * phi_temp**(-cgr(5)-cgr(6)*log(Tg)))
         grec = 0.6 * 2.166e-14 / denom
         ydot(nsix) = ydot(nsix) - grec*y(nsix)*D
         ydot(nsi) = ydot(nsi) + grec*y(nsix)*D
