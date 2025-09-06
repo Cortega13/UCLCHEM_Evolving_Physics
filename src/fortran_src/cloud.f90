@@ -40,11 +40,8 @@ CONTAINS
         real(dp) :: orderMagnitude, currentValue
         IF (timeInYears .ge. 1.0d6) THEN
             targetTime=(timeInYears+1.0d5)*SECONDS_PER_YEAR
-        ELSE IF (timeInYears .gt. 10.0) THEN
-            orderMagnitude = 10.0_dp**(FLOOR(LOG10(timeInYears)))
-            targetTime = ((FLOOR(timeInYears/orderMagnitude) + 1.0_dp) * orderMagnitude)*SECONDS_PER_YEAR
         ELSE IF (timeInYears .gt. 0.0) THEN
-            targetTime = 10 * timeInYears * SECONDS_PER_YEAR
+            targetTime = (timeInYears+8299)*SECONDS_PER_YEAR
         ELSE
             targetTime=SECONDS_PER_YEAR*1.0d-7
         ENDIF

@@ -21,3 +21,6 @@ dist
 .venv
 conda*
 .conda*
+data/
+*/data/
+**/data/

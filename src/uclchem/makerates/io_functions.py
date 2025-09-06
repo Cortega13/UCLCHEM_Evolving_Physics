@@ -435,10 +435,21 @@ def write_odes_f90(
         logging.debug(f"{species_names.index(specie)+1}:{specie}")
         for specie in species_list
     ]
-
     for i, reaction in enumerate(reaction_list):
         logging.debug(f"RATE({i+1}):{reaction}")
-        reaction.generate_ode_bit(i, species_names)
+        
+        ind_grain_species = 999999
+        therm_desorption_idx = -1
+        if reaction.get_reaction_type() == "THERM":
+            for ind, j in enumerate(species_list):
+                if ("@" in j.name or "#" in j.name):
+                    if j.name == reaction.get_reactants()[0]:
+                        therm_desorption_idx = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
+                    if ind < ind_grain_species:
+                        ind_grain_species = ind
+
+        therm_desorption_idx -= ind_grain_species # subtracts the index of the first grain species so that therm_desorption_idx is based off grain idx only.
+        reaction.generate_ode_bit(i, species_names, therm_desorption_idx)
 
     # then create ODE code and write to file.
     with open(file_name, mode="w") as output:
@@ -567,10 +578,12 @@ def build_ode_string(
     ode_string = """MODULE ODES
 USE constants
 USE network
+USE DEFAULTPARAMETERS
 IMPLICIT NONE
 CONTAINS
-SUBROUTINE GETYDOT(RATE, Y, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, YDOT)
+SUBROUTINE GETYDOT(RATE, Y, YDOT, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, Tg, Td, AV, G0, CRIR)
 REAL(dp), INTENT(IN) :: RATE(:), Y(:), bulkLayersReciprocal, safeMantle, safebulk, D
+REAL(dp), INTENT(IN), OPTIONAL :: Tg, Td, AV, G0, CRIR
 REAL(dp), INTENT(INOUT) :: YDOT(:), surfaceCoverage
 REAL(dp) :: totalSwap, LOSS, PROD
     """
@@ -586,6 +599,7 @@ REAL(dp) :: totalSwap, LOSS, PROD
         for n, reaction in enumerate(reaction_list):
             ode_string += truncate_line(f"REACTIONRATE({n+1})={reaction.ode_bit}\n")
 
+    # Now we need to add the ydot equations for each species
     for n, species in enumerate(species_list):
         ydot_string = species_ode_string(n, species)
         ode_string += ydot_string

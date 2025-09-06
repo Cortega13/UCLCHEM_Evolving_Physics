@@ -51,6 +51,8 @@ CONTAINS
         gasTemp=initialTemp
         dustTemp=gasTemp
         density=initialDens
+        baseAv = initialBaseAv
+        radfield = initialRadfield
         currentTimeOld=0.0
         IF (.not. ((ionModel .eq. 'L') .or. (ionModel .eq. 'H'))) THEN
             successFlag=-1
@@ -67,8 +69,14 @@ CONTAINS
         DO dstep=1,points
             coldens(dstep)=real(points-dstep+1)*cloudSize/real(points)*initialDens
         END DO
-          !calculate the Av using an assumed extinction outside of core (baseAv), depth of point and density
-        av= baseAv + coldens/1.6d21
+
+        if (useAVDirectly) THEN
+            av = baseAv
+        ELSE
+            !calculate the Av using an assumed extinction outside of core (baseAv), depth of point and density
+            av = baseAv + coldens/1.6d21
+        ENDIF
+
         zetaScale=zeta
     END SUBROUTINE coreInitializePhysics
 
@@ -80,12 +88,72 @@ CONTAINS
         ! add previous column densities to current as we move into cloud to get total
         IF (dstep .lt. points) coldens(dstep)=coldens(dstep)+coldens(dstep-1)
 
-        !calculate the Av using an assumed extinction outside of core (baseAv), depth of point and density
-        av(dstep)= baseAv + coldens(dstep)/1.6d21
+        if (useAVDirectly) THEN
+            av(dstep) = baseAv
+        ELSE
+            !calculate the Av using an assumed extinction outside of core (baseAv), depth of point and density
+            av(dstep)= baseAv + coldens(dstep)/1.6d21
+        ENDIF
         dustTemp=gasTemp
 
         IF (cosmicRayAttenuation) CALL ionizationDependency
     END SUBROUTINE coreUpdatePhysics
+
+    pure FUNCTION lineartempdot(temperature)
+    ! Returns the time derivative of the temperature when using linear interpolation between two sets of physical parameters.
+    ! Uses the input parameter tempRate to calculate the slope at which the temperature changes.
+    ! Called from chemistry.f90, temperature integrated with abundances so this gives ydot.
+    REAL(dp), INTENT(IN) :: temperature
+    REAL(dp) :: lineartempdot
+
+    IF (evolving_physical_params) THEN
+        lineartempdot = tempRate
+    ELSE
+        lineartempdot = 0.0_dp
+    ENDIF
+    END FUNCTION lineartempdot
+
+    pure FUNCTION linearradfielddot(radfield)
+    ! Returns the time derivative of the radiation field when using linear interpolation between two sets of physical parameters.
+    ! Uses the input parameter radfieldRate to calculate the slope at which the radiation field changes.
+    ! Called from chemistry.f90, radiation field integrated with abundances so this gives ydot.
+    REAL(dp), INTENT(IN) :: radfield
+    REAL(dp) :: linearradfielddot
+
+    IF (evolving_physical_params) THEN
+        linearradfielddot = radfieldRate
+    ELSE
+        linearradfielddot = 0.0_dp
+    ENDIF
+    END FUNCTION linearradfielddot
+
+    pure FUNCTION linearextinctiondot(extinction)
+    ! Returns the time derivative of the visual extinction when using linear interpolation between two sets of physical parameters.
+    ! Uses the input parameter baseAvRate to calculate the slope at which the extinction changes.
+    ! Called from chemistry.f90, extinction integrated with abundances so this gives ydot.
+    REAL(dp), INTENT(IN) :: extinction
+    REAL(dp) :: linearextinctiondot
+
+    IF (evolving_physical_params) THEN
+        linearextinctiondot = baseAvRate
+    ELSE
+        linearextinctiondot = 0.0_dp
+    ENDIF
+    END FUNCTION linearextinctiondot
+
+    pure FUNCTION lineardensitydot(density)
+    ! Returns the time derivative of the density when using linear interpolation between two sets of physical parameters.
+    ! Uses the input parameters densRate to calculate the slope at which the density changes.
+    ! Called from chemistry.f90, density integrated with abundances so this gives ydot.
+    REAL(dp), INTENT(IN) :: density
+    REAL(dp) :: lineardensitydot
+
+    IF (EVOLVING_PHYSICAL_PARAMS) THEN
+        lineardensitydot = densRate
+    ELSE
+        lineardensitydot = 0.0_dp
+    ENDIF
+    END FUNCTION lineardensitydot
 
     pure FUNCTION densdot(density)
     ! Returns the time derivative of the density.                                     

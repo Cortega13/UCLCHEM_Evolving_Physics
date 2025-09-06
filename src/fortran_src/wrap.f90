@@ -759,10 +759,30 @@ CONTAINS
                     posStart=scan(dictionary,'{')
                     posEnd=scan(dictionary,'}')
                     CALL coefficientParser(dictionary(posStart+1:posEnd),gama)
+                
+                ! Parameters for evolving physics.
+                CASE ('evolvingphysicalparams')
+                    READ(inputValue,*,iostat=successFlag) evolving_physical_params
+                CASE ('useavdirectly')
+                    READ(inputValue,*,iostat=successFlag) useAvDirectly
+                
                 CASE('initialtemp')
                     READ(inputValue,*,iostat=successFlag) initialTemp
                 CASE('initialdens')
                     READ(inputValue,*,iostat=successFlag) initialDens
+                CASE('initialbaseav')
+                    READ(inputValue,*,iostat=successFlag) initialBaseAv
+                CASE('initialradfield')
+                    READ(inputValue,*,iostat=successFlag) initialRadfield
+                CASE('temprate')
+                    READ(inputValue,*,iostat=successFlag) tempRate
+                CASE('densrate')
+                    READ(inputValue,*,iostat=successFlag) densRate
+                CASE('baseavrate')
+                    READ(inputValue,*,iostat=successFlag) baseAvRate
+                CASE('radfieldrate')
+                    READ(inputValue,*,iostat=successFlag) radfieldRate
+
                 CASE('finaldens')
                     READ(inputValue,*,iostat=successFlag) finalDens
                 CASE('currenttime')
