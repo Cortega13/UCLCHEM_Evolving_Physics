@@ -144,11 +144,11 @@ def process_csv_file(csv_path, out_path):
     result_df.to_csv(out_path, index=False)
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="Generate chemical abundances from physical parameter evolution in a csv file.")
-    # parser.add_argument("csv_path", type=str, help="The path of the csv file containing the physical parameter evolution.")
-    # args = parser.parse_args()
-    # csv_path = args.csv_path
-    csv_path = "/mnt/c/users/carlo/projects/UCLCHEM_Evolving_Physics/benchmarks/turbulence_uclchem/data/turbulence_tracers_csv/M600_1_1_Tracer_10.csv"
+    parser = argparse.ArgumentParser(description="Generate chemical abundances from physical parameter evolution in a csv file.")
+    parser.add_argument("csv_path", type=str, help="The path of the csv file containing the physical parameter evolution.")
+    args = parser.parse_args()
+    csv_path = args.csv_path
+    # csv_path = "/mnt/c/users/carlo/projects/UCLCHEM_Evolving_Physics/benchmarks/turbulence_uclchem/data/turbulence_tracers_csv/M600_1_1_Tracer_10.csv"
     
     info = csv_path.split("/")[-1].split("_Tracer_")
     benchmark = info[0]

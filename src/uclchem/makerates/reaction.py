@@ -600,8 +600,8 @@ class Reaction:
         else:
             return False
 
-    def generate_ode_bit(self, i: int, species_names: list, therm_desorption_idx: int):
-        self.ode_bit = _generate_reaction_ode_bit(self, i, species_names, self.body_count, self.get_reactants(), therm_desorption_idx)
+    def generate_ode_bit(self, i: int, species_names: list, matching_grain_idx_r1: int):
+        self.ode_bit = _generate_reaction_ode_bit(self, i, species_names, self.body_count, self.get_reactants(), matching_grain_idx_r1)
 
     def to_UCL_format(self):
         """Convert a reaction to UCLCHEM reaction file format"""
@@ -772,7 +772,7 @@ class CoupledReaction(Reaction):
     def get_partner(self):
         return self.partner
 
-def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: int, reactants: list[str], therm_desorption_idx: int):
+def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: int, reactants: list[str], matching_grain_idx_r1: int):
         """Every reaction contributes a fixed rate of change to whatever species it
         affects. We create the string of fortran code describing that change here.
 
@@ -864,12 +864,14 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
             ode_bit += f"*(epsilon*({rate}))"
         
         if self.get_reaction_type() == "THERM":
-            if therm_desorption_idx > 0:
-                ode_bit += f"*dsqrt(VDIFF_PREFACTOR*bindingEnergy({therm_desorption_idx})/mass(iceList({therm_desorption_idx}))) * exp(-{gamma}/Td)"
-
+            ode_bit += f"*VDIFF({matching_grain_idx_r1})* exp(-{gamma}/Td)"
+        
         if self.get_reaction_type() == "DEUVCR":
             ode_bit += f"*GRAIN_CROSSSECTION_PER_H*uv_yield*4.875d3*CRIR * (1+(G0/uvcreff)*(1.0/CRIR)*dexp(-1.8*AV))"
         
+        if self.get_reaction_type() == "BULKSWAP":
+            ode_bit += f"*VDIFF({matching_grain_idx_r1})*DEXP(-bindingEnergy({matching_grain_idx_r1})/Td)"
+            
         # Setting individual ones.
         # Parameterize h2 formation. nR_H2Form_CT=662
         if i+1 == 662:
@@ -877,3 +879,6 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
             ode_bit += f"*({rate})"
         
         return ode_bit
+
+# def diffusionReactionRate():
+#     f"alpha({i+1}) *max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma))))/(max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma)))) + (VDIFF({matching_grain_idx_r1})*dexp(-bindingEnergy({matching_grain_idx_r1})/Td) + VDIFF({matching_grain_idx_r2})*dexp(-bindingEnergy({matching_grain_idx_r2})/Td)) + (VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))))* VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN"

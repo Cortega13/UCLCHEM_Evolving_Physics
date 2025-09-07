@@ -63,48 +63,11 @@ CONTAINS
      RETURN
   END FUNCTION h2FormEfficiency
 
-  SUBROUTINE bulkSurfaceExchangeReactions(rate,dustTemperature)
-    REAL(dp), INTENT(INOUT) :: rate(*)
-    REAL(dp) :: dustTemperature
-    IF (THREE_PHASE) THEN
-      surfaceCoverage=0.5*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN
-      CALL bulkToSurfaceSwappingRates(rate,bulkswapReacs(1),bulkswapReacs(2),dustTemperature)
-      rate(surfSwapReacs(1):surfSwapReacs(2))=surfaceToBulkSwappingRates(dustTemperature)
-    END IF
-  END SUBROUTINE bulkSurfaceExchangeReactions
-
   !surface abundance multiplied by this value gives fraction of surface covered by material
   FUNCTION bulkGainFromMantleBuildUp() RESULT(rate)
     REAL(dp) :: rate
     rate=0.5*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN
   END FUNCTION bulkGainFromMantleBuildUp
-
-  FUNCTION surfaceToBulkSwappingRates(dustTemperature) RESULT(rate)
-    REAL(dp) ::rate,dustTemperature
-    IF ((dustTemperature .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
-              rate = 0.0
-    ELSE
-        rate = 1.0
-    END IF
-  END FUNCTION surfaceToBulkSwappingRates
-
-
-  SUBROUTINE bulkToSurfaceSwappingRates(rate,idx1,idx2,dustTemperature)
-    REAL(dp), INTENT(INOUT) :: rate(*)
-    REAL(dp) :: dustTemperature
-    INTEGER(dp) :: idx1,idx2,i,j
-    IF ((dustTemperature .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
-        rate(idx1:idx2) = 0.0
-    ELSE
-        DO i=idx1,idx2
-            DO j=lbound(iceList,1),ubound(iceList,1)
-                IF (iceList(j) .eq. re1(i)) THEN
-                  rate(i)=vdiff(j)*DEXP(-bindingEnergy(j)/dustTemperature)
-                END IF
-            END DO
-        END DO
-    END IF
-  END SUBROUTINE bulkToSurfaceSwappingRates
 
   !----------------------------------------------------------------------------------------------------
 !Reactions on the surface treated by evaluating diffusion rates across grains and accounting

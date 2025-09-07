@@ -1,0 +1,426 @@
+09-06 15:30 INFO: Configured the logging. Files verbosity is INFO and stdout verbosity is WARNING
+09-06 15:30 INFO: species_file : data/default/default_species.csv
+09-06 15:30 INFO: database_reaction_file : data/databases/umist22.csv
+09-06 15:30 INFO: database_reaction_type : UMIST
+09-06 15:30 INFO: custom_reaction_file : data/default/default_grain_network.csv
+09-06 15:30 INFO: custom_reaction_type : UCL
+09-06 15:30 INFO: add_crp_photo_to_grain : False
+09-06 15:30 INFO: enable_rates_to_disk : False
+09-06 15:30 WARNING: Could not predict reduced mass of '#H2CO + #O + LH -> #CO2 + H2' cleverly.
+Instead, using regular definition with masses of two reactants (mu=10.4). (Reaction is barrierless anyway)
+09-06 15:30 WARNING: Could not predict reduced mass of '#NH + #CO + LH -> #HNCO' cleverly.
+Instead, using regular definition with masses of two reactants (mu=9.77).
+09-06 15:30 WARNING: Could not predict reduced mass of '#H + #HNCO + LH -> #NH2 + #CO' cleverly.
+Instead, using regular definition with masses of two reactants (mu=0.977).
+09-06 15:30 WARNING: Could not predict reduced mass of '#NH2 + #HCO + LH -> #NH2CHO' cleverly.
+Instead, using regular definition with masses of two reactants (mu=10.3). (Reaction is barrierless anyway)
+09-06 15:30 WARNING: Could not predict reduced mass of '#NH2 + #H2CO + LH -> #NH2CHO + H' cleverly.
+Instead, using regular definition with masses of two reactants (mu=10.4). (Reaction is barrierless anyway)
+09-06 15:30 WARNING: Could not predict reduced mass of '#HCO + #OH + LH -> #HCOOH' cleverly.
+Instead, using regular definition with masses of two reactants (mu=10.7). (Reaction is barrierless anyway)
+09-06 15:30 WARNING: Could not predict reduced mass of '#CH3 + #HCO + LH -> #CH3CHO' cleverly.
+Instead, using regular definition with masses of two reactants (mu=9.89). (Reaction is barrierless anyway)
+09-06 15:30 INFO: Adding a default freezeout for H to the specie
+09-06 15:30 INFO: Adding a default freezeout for H+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HE to the specie
+09-06 15:30 INFO: Adding a default freezeout for HE+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C to the specie
+09-06 15:30 INFO: Adding a default freezeout for C+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for N to the specie
+09-06 15:30 INFO: Adding a default freezeout for N+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3 to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH4 to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH4+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for O to the specie
+09-06 15:30 INFO: Adding a default freezeout for O+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH3 to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH3+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for OH to the specie
+09-06 15:30 INFO: Adding a default freezeout for OH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2O to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2O+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for MG to the specie
+09-06 15:30 INFO: Adding a default freezeout for MG+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CN to the specie
+09-06 15:30 INFO: Adding a default freezeout for CN+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H3 to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCN to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCN+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HNC to the specie
+09-06 15:30 INFO: Adding a default freezeout for CO to the specie
+09-06 15:30 INFO: Adding a default freezeout for CO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2CN to the specie
+09-06 15:30 INFO: Adding a default freezeout for N2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for N2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SI to the specie
+09-06 15:30 INFO: Adding a default freezeout for SI+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H4 to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCO to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C2H5 to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2CO to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2CO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for NO to the specie
+09-06 15:30 INFO: Adding a default freezeout for NO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2COH to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2COH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HNO to the specie
+09-06 15:30 INFO: Adding a default freezeout for HNO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH3 to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH3+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH2OH to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3OH to the specie
+09-06 15:30 INFO: Adding a default freezeout for O2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for O2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for S to the specie
+09-06 15:30 INFO: Adding a default freezeout for S+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH4 to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIH4+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HS to the specie
+09-06 15:30 INFO: Adding a default freezeout for HS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for O2H to the specie
+09-06 15:30 INFO: Adding a default freezeout for O2H+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2S to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2S+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CL to the specie
+09-06 15:30 INFO: Adding a default freezeout for CL+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCL to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCL+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C3H2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3CCH to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3CN to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH2CO to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3CNH to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3CNH+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for OCN to the specie
+09-06 15:30 INFO: Adding a default freezeout for HNCO to the specie
+09-06 15:30 INFO: Adding a default freezeout for CO2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for CS to the specie
+09-06 15:30 INFO: Adding a default freezeout for CS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIO to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for CH3CHO to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCS to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HSIO to the specie
+09-06 15:30 INFO: Adding a default freezeout for NH2CHO to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCOO to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2CS to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2CS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2SIO to the specie
+09-06 15:30 INFO: Adding a default freezeout for NO2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for NS to the specie
+09-06 15:30 INFO: Adding a default freezeout for NS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for HCOOH to the specie
+09-06 15:30 INFO: Adding a default freezeout for SO to the specie
+09-06 15:30 INFO: Adding a default freezeout for SO+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C4H to the specie
+09-06 15:30 INFO: Adding a default freezeout for HC3N to the specie
+09-06 15:30 INFO: Adding a default freezeout for NCCN to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for OCS to the specie
+09-06 15:30 INFO: Adding a default freezeout for OCS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIS to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIS+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for C4N to the specie
+09-06 15:30 INFO: Adding a default freezeout for C4N+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC3+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SIC3 to the specie
+09-06 15:30 INFO: Adding a default freezeout for S2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for S2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SO2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for SO2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for HS2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for HS2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2S2+ to the specie
+09-06 15:30 INFO: Adding a default freezeout for H2S2 to the specie
+09-06 15:30 INFO: Adding a default freezeout for E- to the specie
+09-06 15:30 INFO: Trying to add new specie ['', 'NAN', 'NAN', 'NAN']
+09-06 15:30 INFO: You try to add a falsy specie called '', this cannot be done and will be ignored.
+09-06 15:30 WARNING: All Langmuir-Hinshelwood and Eley-Rideal reactions should be input with products on grains only.
+The fraction of products that enter the gas is dealt with by Makerates and UCLCHEM.
+the following reaction caused this warning	#H2CO + #O + LH -> #CO2 + H2
+09-06 15:30 WARNING: All Langmuir-Hinshelwood and Eley-Rideal reactions should be input with products on grains only.
+The fraction of products that enter the gas is dealt with by Makerates and UCLCHEM.
+the following reaction caused this warning	#NH2 + #H2CO + LH -> #NH2CHO + H
+09-06 15:30 WARNING: All Langmuir-Hinshelwood and Eley-Rideal reactions should be input with products on grains only.
+The fraction of products that enter the gas is dealt with by Makerates and UCLCHEM.
+the following reaction caused this warning	@H2CO + @O + LH -> @CO2 + H2
+09-06 15:30 WARNING: All Langmuir-Hinshelwood and Eley-Rideal reactions should be input with products on grains only.
+The fraction of products that enter the gas is dealt with by Makerates and UCLCHEM.
+the following reaction caused this warning	@NH2 + @H2CO + LH -> @NH2CHO + H
+09-06 15:30 WARNING: Some of the branching ratios do not sum to 1.0, correcting those that do not
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LH -> #CH2OH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LH -> #H2COH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LH -> #HCO + #H2 has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction #N + #N + LH -> #N2 has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: You have reaction #H + #OCN + LH -> #HNCO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 WARNING: Grain reaction #H2COH + #HNCO + LH -> #CH3OH + #OCN has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: Grain reaction #CH3 + #HNCO + LH -> #CH4 + #OCN has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: Grain reaction #NH + #HNCO + LH -> #NH2 + #OCN has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: Grain reaction #NH2 + #HNCO + LH -> #NH3 + #OCN has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: Grain reaction #OH + #HNCO + LH -> #H2O + #OCN has a branching ratio of 0.0, removing the reaction altogether
+09-06 15:30 WARNING: You have reaction #H + #HNCO + LH -> #NH2 + #CO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LH -> @CH2OH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LH -> @H2COH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LH -> @HCO + @H2 has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 INFO: Tried to remove a coupled reaction @N + @N + LH -> @N2, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction @H + @OCN + LH -> @HNCO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 INFO: Tried to remove a coupled reaction @H2COH + @HNCO + LH -> @CH3OH + @OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @CH3 + @HNCO + LH -> @CH4 + @OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @NH + @HNCO + LH -> @NH2 + @OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @NH2 + @HNCO + LH -> @NH3 + @OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @OH + @HNCO + LH -> @H2O + @OCN, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction @H + @HNCO + LH -> @NH2 + @CO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LHDES -> CH2OH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LHDES -> H2COH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction #H + #H2CO + LHDES -> HCO + H2 has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 INFO: Tried to remove a coupled reaction #N + #N + LHDES -> N2, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction #H + #OCN + LHDES -> HNCO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 INFO: Tried to remove a coupled reaction #H2COH + #HNCO + LHDES -> CH3OH + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction #CH3 + #HNCO + LHDES -> CH4 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction #NH + #HNCO + LHDES -> NH2 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction #NH2 + #HNCO + LHDES -> NH3 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction #OH + #HNCO + LHDES -> H2O + OCN, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction #H + #HNCO + LHDES -> NH2 + CO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LHDES -> CH2OH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LHDES -> H2COH has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 WARNING: Grain reaction @H + @H2CO + LHDES -> HCO + H2 has a branching ratio of 0.33, dividing it by 0.99 resulting in BR of 0.33333333333333337
+09-06 15:30 INFO: Tried to remove a coupled reaction @N + @N + LHDES -> N2, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction @H + @OCN + LHDES -> HNCO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 INFO: Tried to remove a coupled reaction @H2COH + @HNCO + LHDES -> CH3OH + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @CH3 + @HNCO + LHDES -> CH4 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @NH + @HNCO + LHDES -> NH2 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @NH2 + @HNCO + LHDES -> NH3 + OCN, but it was already removed by one of its partners.
+09-06 15:30 INFO: Tried to remove a coupled reaction @OH + @HNCO + LHDES -> H2O + OCN, but it was already removed by one of its partners.
+09-06 15:30 WARNING: You have reaction @H + @HNCO + LHDES -> NH2 + CO with a branching ratio 0.5 we are assuming you set this lower on purpose.
+09-06 15:30 INFO: 	All input species in final network
+09-06 15:30 INFO: 
+################################################
+Reading and checking input
+################################################
+
+09-06 15:30 INFO: Checking Network
+09-06 15:30 INFO: 	Check that species have surface counterparts or if they have multiple freeze outs/check alphas:
+
+09-06 15:30 INFO: 	H freezes out through H + FREEZE -> #H
+09-06 15:30 INFO: 	H+ freezes out through H+ + FREEZE -> #H
+09-06 15:30 INFO: 	H2 freezes out through H2 + FREEZE -> #H2
+09-06 15:30 INFO: 	H2+ freezes out through H2+ + FREEZE -> #H2
+09-06 15:30 INFO: 	H3+ freezes out through H3+ + FREEZE -> #H + #H + #H
+09-06 15:30 INFO: 	HE freezes out through HE + FREEZE -> #HE
+09-06 15:30 INFO: 	HE+ freezes out through HE+ + FREEZE -> #HE
+09-06 15:30 INFO: 	HEH+ freezes out through HEH+ + FREEZE -> #H + #HE
+09-06 15:30 INFO: 	C freezes out through C + FREEZE -> #C
+09-06 15:30 INFO: 	C+ freezes out through C+ + FREEZE -> #C
+09-06 15:30 INFO: 	CH freezes out through CH + FREEZE -> #CH
+09-06 15:30 INFO: 	CH+ freezes out through CH+ + FREEZE -> #CH
+09-06 15:30 INFO: 	CH2 freezes out through CH2 + FREEZE -> #CH2
+09-06 15:30 INFO: 	CH2+ freezes out through CH2+ + FREEZE -> #CH2
+09-06 15:30 INFO: 	N freezes out through N + FREEZE -> #N
+09-06 15:30 INFO: 	N+ freezes out through N+ + FREEZE -> #N
+09-06 15:30 INFO: 	CH3 freezes out through CH3 + FREEZE -> #CH3
+09-06 15:30 INFO: 	CH3+ freezes out through CH3+ + FREEZE -> #CH3
+09-06 15:30 INFO: 	NH freezes out through NH + FREEZE -> #NH
+09-06 15:30 INFO: 	NH+ freezes out through NH+ + FREEZE -> #NH
+09-06 15:30 INFO: 	CH4 freezes out through CH4 + FREEZE -> #CH4
+09-06 15:30 INFO: 	CH4+ freezes out through CH4+ + FREEZE -> #CH4
+09-06 15:30 INFO: 	NH2 freezes out through NH2 + FREEZE -> #NH2
+09-06 15:30 INFO: 	NH2+ freezes out through NH2+ + FREEZE -> #NH2
+09-06 15:30 INFO: 	O freezes out through O + FREEZE -> #O
+09-06 15:30 INFO: 	O+ freezes out through O+ + FREEZE -> #O
+09-06 15:30 INFO: 	CH5+ freezes out through CH5+ + FREEZE -> #CH4 + H
+09-06 15:30 INFO: 	NH3 freezes out through NH3 + FREEZE -> #NH3
+09-06 15:30 INFO: 	NH3+ freezes out through NH3+ + FREEZE -> #NH3
+09-06 15:30 INFO: 	OH freezes out through OH + FREEZE -> #OH
+09-06 15:30 INFO: 	OH+ freezes out through OH+ + FREEZE -> #OH
+09-06 15:30 INFO: 	H2O freezes out through H2O + FREEZE -> #H2O
+09-06 15:30 INFO: 	H2O+ freezes out through H2O+ + FREEZE -> #H2O
+09-06 15:30 INFO: 	NH4+ freezes out through NH4+ + FREEZE -> #NH3 + H
+09-06 15:30 INFO: 	H3O+ freezes out through H3O+ + FREEZE -> #H2O + H
+09-06 15:30 INFO: 	C2 freezes out through C2 + FREEZE -> #C2
+09-06 15:30 INFO: 	C2+ freezes out through C2+ + FREEZE -> #C2
+09-06 15:30 INFO: 	MG freezes out through MG + FREEZE -> #MG
+09-06 15:30 INFO: 	MG+ freezes out through MG+ + FREEZE -> #MG
+09-06 15:30 INFO: 	C2H freezes out through C2H + FREEZE -> #C2H
+09-06 15:30 INFO: 	C2H+ freezes out through C2H+ + FREEZE -> #C2H
+09-06 15:30 INFO: 	C2H2 freezes out through C2H2 + FREEZE -> #C2H2
+09-06 15:30 INFO: 	C2H2+ freezes out through C2H2+ + FREEZE -> #C2H2
+09-06 15:30 INFO: 	CN freezes out through CN + FREEZE -> #CN
+09-06 15:30 INFO: 	CN+ freezes out through CN+ + FREEZE -> #CN
+09-06 15:30 INFO: 	C2H3 freezes out through C2H3 + FREEZE -> #C2H3
+09-06 15:30 INFO: 	HCN freezes out through HCN + FREEZE -> #HCN
+09-06 15:30 INFO: 	HCN+ freezes out through HCN+ + FREEZE -> #HCN
+09-06 15:30 INFO: 	HNC freezes out through HNC + FREEZE -> #HNC
+09-06 15:30 INFO: 	CO freezes out through CO + FREEZE -> #CO
+09-06 15:30 INFO: 	CO+ freezes out through CO+ + FREEZE -> #CO
+09-06 15:30 INFO: 	H2CN freezes out through H2CN + FREEZE -> #H2CN
+09-06 15:30 INFO: 	HCNH+ freezes out through HCNH+ + FREEZE -> #HCN + H
+09-06 15:30 INFO: 	N2 freezes out through N2 + FREEZE -> #N2
+09-06 15:30 INFO: 	N2+ freezes out through N2+ + FREEZE -> #N2
+09-06 15:30 INFO: 	SI freezes out through SI + FREEZE -> #SI
+09-06 15:30 INFO: 	SI+ freezes out through SI+ + FREEZE -> #SI
+09-06 15:30 INFO: 	C2H4 freezes out through C2H4 + FREEZE -> #C2H4
+09-06 15:30 INFO: 	HCO freezes out through HCO + FREEZE -> #HCO
+09-06 15:30 INFO: 	HCO+ freezes out through HCO+ + FREEZE -> #HCO
+09-06 15:30 INFO: 	HOC+ freezes out through HOC+ + FREEZE -> #HCO
+09-06 15:30 INFO: 	N2H+ freezes out through N2H+ + FREEZE -> #N2 + H
+09-06 15:30 INFO: 	SIH freezes out through SIH + FREEZE -> #SIH
+09-06 15:30 INFO: 	SIH+ freezes out through SIH+ + FREEZE -> #SIH
+09-06 15:30 INFO: 	C2H5 freezes out through C2H5 + FREEZE -> #C2H5
+09-06 15:30 INFO: 	H2CO freezes out through H2CO + FREEZE -> #H2CO
+09-06 15:30 INFO: 	H2CO+ freezes out through H2CO+ + FREEZE -> #H2CO
+09-06 15:30 INFO: 	NO freezes out through NO + FREEZE -> #NO
+09-06 15:30 INFO: 	NO+ freezes out through NO+ + FREEZE -> #NO
+09-06 15:30 INFO: 	SIH2 freezes out through SIH2 + FREEZE -> #SIH2
+09-06 15:30 INFO: 	SIH2+ freezes out through SIH2+ + FREEZE -> #SIH2
+09-06 15:30 INFO: 	H2COH freezes out through H2COH + FREEZE -> #H2COH
+09-06 15:30 INFO: 	H2COH+ freezes out through H2COH+ + FREEZE -> #H2COH
+09-06 15:30 INFO: 	HNO freezes out through HNO + FREEZE -> #HNO
+09-06 15:30 INFO: 	HNO+ freezes out through HNO+ + FREEZE -> #HNO
+09-06 15:30 INFO: 	SIH3 freezes out through SIH3 + FREEZE -> #SIH3
+09-06 15:30 INFO: 	SIH3+ freezes out through SIH3+ + FREEZE -> #SIH3
+09-06 15:30 INFO: 	CH2OH freezes out through CH2OH + FREEZE -> #CH2OH
+09-06 15:30 INFO: 	CH3OH freezes out through CH3OH + FREEZE -> #CH3OH
+09-06 15:30 INFO: 	H2NO+ freezes out through H2NO+ + FREEZE -> #HNO + H
+09-06 15:30 INFO: 	O2 freezes out through O2 + FREEZE -> #O2
+09-06 15:30 INFO: 	O2+ freezes out through O2+ + FREEZE -> #O2
+09-06 15:30 INFO: 	S freezes out through S + FREEZE -> #S
+09-06 15:30 INFO: 	S+ freezes out through S+ + FREEZE -> #S
+09-06 15:30 INFO: 	SIH4 freezes out through SIH4 + FREEZE -> #SIH4
+09-06 15:30 INFO: 	SIH4+ freezes out through SIH4+ + FREEZE -> #SIH4
+09-06 15:30 INFO: 	CH3OH2+ freezes out through CH3OH2+ + FREEZE -> #CH3OH + H
+09-06 15:30 INFO: 	HS freezes out through HS + FREEZE -> #HS
+09-06 15:30 INFO: 	HS+ freezes out through HS+ + FREEZE -> #HS
+09-06 15:30 INFO: 	O2H freezes out through O2H + FREEZE -> #O2H
+09-06 15:30 INFO: 	O2H+ freezes out through O2H+ + FREEZE -> #O2H
+09-06 15:30 INFO: 	SIH5+ freezes out through SIH5+ + FREEZE -> #SIH4 + H
+09-06 15:30 INFO: 	H2S freezes out through H2S + FREEZE -> #H2S
+09-06 15:30 INFO: 	H2S+ freezes out through H2S+ + FREEZE -> #H2S
+09-06 15:30 INFO: 	CL freezes out through CL + FREEZE -> #CL
+09-06 15:30 INFO: 	CL+ freezes out through CL+ + FREEZE -> #CL
+09-06 15:30 INFO: 	H3S+ freezes out through H3S+ + FREEZE -> #H2S + H
+09-06 15:30 INFO: 	C3+ freezes out through C3+ + FREEZE -> #C2 + C
+09-06 15:30 INFO: 	HCL freezes out through HCL + FREEZE -> #HCL
+09-06 15:30 INFO: 	HCL+ freezes out through HCL+ + FREEZE -> #HCL
+09-06 15:30 INFO: 	H2CL+ freezes out through H2CL+ + FREEZE -> #HCL + H
+09-06 15:30 INFO: 	C2N freezes out through C2N + FREEZE -> #CH3CNH
+09-06 15:30 INFO: 	C2N+ freezes out through C2N+ + FREEZE -> #CH3CNH
+09-06 15:30 INFO: 	C3H2 freezes out through C3H2 + FREEZE -> #C3H2
+09-06 15:30 INFO: 	C2NH+ freezes out through C2NH+ + FREEZE -> #CH3CNH
+09-06 15:30 INFO: 	CH3CCH freezes out through CH3CCH + FREEZE -> #CH3CCH
+09-06 15:30 INFO: 	SIC freezes out through SIC + FREEZE -> #SIC
+09-06 15:30 INFO: 	SIC+ freezes out through SIC+ + FREEZE -> #SIC
+09-06 15:30 INFO: 	C3H5+ freezes out through C3H5+ + FREEZE -> #CH3CCH + H
+09-06 15:30 INFO: 	CH3CN freezes out through CH3CN + FREEZE -> #CH3CN
+09-06 15:30 INFO: 	CH2CO freezes out through CH2CO + FREEZE -> #CH2CO
+09-06 15:30 INFO: 	CH3CNH freezes out through CH3CNH + FREEZE -> #CH3CNH
+09-06 15:30 INFO: 	CH3CNH+ freezes out through CH3CNH+ + FREEZE -> #CH3CNH
+09-06 15:30 INFO: 	OCN freezes out through OCN + FREEZE -> #OCN
+09-06 15:30 INFO: 	HNCO freezes out through HNCO + FREEZE -> #HNCO
+09-06 15:30 INFO: 	CO2 freezes out through CO2 + FREEZE -> #CO2
+09-06 15:30 INFO: 	CS freezes out through CS + FREEZE -> #CS
+09-06 15:30 INFO: 	CS+ freezes out through CS+ + FREEZE -> #CS
+09-06 15:30 INFO: 	SIO freezes out through SIO + FREEZE -> #SIO
+09-06 15:30 INFO: 	SIO+ freezes out through SIO+ + FREEZE -> #SIO
+09-06 15:30 INFO: 	CH3CHO freezes out through CH3CHO + FREEZE -> #CH3CHO
+09-06 15:30 INFO: 	HCO2+ freezes out through HCO2+ + FREEZE -> #CO2 + H
+09-06 15:30 INFO: 	HCS freezes out through HCS + FREEZE -> #HCS
+09-06 15:30 INFO: 	HCS+ freezes out through HCS+ + FREEZE -> #HCS
+09-06 15:30 INFO: 	SIOH+ freezes out through SIOH+ + FREEZE -> #HSIO
+09-06 15:30 INFO: 	HSIO freezes out through HSIO + FREEZE -> #HSIO
+09-06 15:30 INFO: 	NH2CHO freezes out through NH2CHO + FREEZE -> #NH2CHO
+09-06 15:30 INFO: 	HCOO freezes out through HCOO + FREEZE -> #HCOO
+09-06 15:30 INFO: 	H2CS freezes out through H2CS + FREEZE -> #H2CS
+09-06 15:30 INFO: 	H2CS+ freezes out through H2CS+ + FREEZE -> #H2CS
+09-06 15:30 INFO: 	H2SIO freezes out through H2SIO + FREEZE -> #H2SIO
+09-06 15:30 INFO: 	NO2 freezes out through NO2 + FREEZE -> #NO2
+09-06 15:30 INFO: 	NS freezes out through NS + FREEZE -> #NS
+09-06 15:30 INFO: 	NS+ freezes out through NS+ + FREEZE -> #NS
+09-06 15:30 INFO: 	HCOOH freezes out through HCOOH + FREEZE -> #HCOOH
+09-06 15:30 INFO: 	H2CSH+ freezes out through H2CSH+ + FREEZE -> #H2CS + H
+09-06 15:30 INFO: 	HNS+ freezes out through HNS+ + FREEZE -> #NS + H
+09-06 15:30 INFO: 	SO freezes out through SO + FREEZE -> #SO
+09-06 15:30 INFO: 	SO+ freezes out through SO+ + FREEZE -> #SO
+09-06 15:30 INFO: 	C4H freezes out through C4H + FREEZE -> #C4H
+09-06 15:30 INFO: 	HSO+ freezes out through HSO+ + FREEZE -> #SO + H
+09-06 15:30 INFO: 	C3N freezes out through C3N + FREEZE -> #HC3N
+09-06 15:30 INFO: 	HC3N freezes out through HC3N + FREEZE -> #HC3N
+09-06 15:30 INFO: 	C2N2+ freezes out through C2N2+ + FREEZE -> #NCCN
+09-06 15:30 INFO: 	NCCN freezes out through NCCN + FREEZE -> #NCCN
+09-06 15:30 INFO: 	SIC2 freezes out through SIC2 + FREEZE -> #SIC2
+09-06 15:30 INFO: 	SIC2+ freezes out through SIC2+ + FREEZE -> #SIC2
+09-06 15:30 INFO: 	OCS freezes out through OCS + FREEZE -> #OCS
+09-06 15:30 INFO: 	OCS+ freezes out through OCS+ + FREEZE -> #OCS
+09-06 15:30 INFO: 	SIS freezes out through SIS + FREEZE -> #SIS
+09-06 15:30 INFO: 	SIS+ freezes out through SIS+ + FREEZE -> #SIS
+09-06 15:30 INFO: 	OCSH+ freezes out through OCSH+ + FREEZE -> #OCS + H
+09-06 15:30 INFO: 	SISH+ freezes out through SISH+ + FREEZE -> #SIS + H
+09-06 15:30 INFO: 	C4N freezes out through C4N + FREEZE -> #C4N
+09-06 15:30 INFO: 	C4N+ freezes out through C4N+ + FREEZE -> #C4N
+09-06 15:30 INFO: 	SIC3+ freezes out through SIC3+ + FREEZE -> #SIC3
+09-06 15:30 INFO: 	SIC3 freezes out through SIC3 + FREEZE -> #SIC3
+09-06 15:30 INFO: 	S2 freezes out through S2 + FREEZE -> #S2
+09-06 15:30 INFO: 	S2+ freezes out through S2+ + FREEZE -> #S2
+09-06 15:30 INFO: 	SO2+ freezes out through SO2+ + FREEZE -> #SO2
+09-06 15:30 INFO: 	SO2 freezes out through SO2 + FREEZE -> #SO2
+09-06 15:30 INFO: 	HS2 freezes out through HS2 + FREEZE -> #HS2
+09-06 15:30 INFO: 	HS2+ freezes out through HS2+ + FREEZE -> #HS2
+09-06 15:30 INFO: 	HOSO+ freezes out through HOSO+ + FREEZE -> #SO2 + H
+09-06 15:30 INFO: 	H2S2+ freezes out through H2S2+ + FREEZE -> #H2S2
+09-06 15:30 INFO: 	H2S2 freezes out through H2S2 + FREEZE -> #H2S2
+09-06 15:30 INFO: 	E- freezes out through E- + FREEZE -> 
+09-06 15:30 INFO: 	Possible duplicate reactions for manual removal:
+09-06 15:30 INFO: Detected overlapping UMIST reactions C + S -> CS + PHOTON wit indices 1306 1307, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions C + S -> CS + PHOTON wit indices 1306 1308, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions C + S -> CS + PHOTON wit indices 1306 1309, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions H + CH2 -> CH + H2 wit indices 1863 1864, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions O + SI -> SIO + PHOTON wit indices 2976 2977, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions SIH + H2O -> HSIO + H2 wit indices 3171 3172, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: Detected overlapping UMIST reactions SIH + H2O -> H2SIO + H wit indices 3173 3174, this is done in UMIST to provide better rates. 
+09-06 15:30 INFO: 	D not in network, adding dummy index
+09-06 15:30 INFO: 	F not in network, adding dummy index
+09-06 15:30 INFO: 	P not in network, adding dummy index
+09-06 15:30 INFO: 	LI not in network, adding dummy index
+09-06 15:30 INFO: 	NA not in network, adding dummy index
+09-06 15:30 INFO: 	PAH not in network, adding dummy index
+09-06 15:30 INFO: 	15N not in network, adding dummy index
+09-06 15:30 INFO: 	13C not in network, adding dummy index
+09-06 15:30 INFO: 	18O not in network, adding dummy index
+09-06 15:30 INFO: 	FE not in network, adding dummy index
+09-06 15:30 INFO: 
+################################################
+Checks complete, writing output files
+################################################
+
+09-06 15:30 INFO: 
+Reactions dropped from grain file written to dropped_reactions.csv
+
+09-06 15:30 INFO: There are 29 droppped reactions
+09-06 15:30 INFO: Total number of species = 335
+09-06 15:30 INFO: Number of surface species = 83
+09-06 15:30 INFO: Number of reactions = 3203

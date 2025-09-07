@@ -158,6 +158,28 @@ CONTAINS
             &<MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
         END IF
 
+        ! bulkSurfaceExchangeReactions
+        idx1 = bulkswapReacs(1)
+        idx2 = bulkswapReacs(2)
+        IF (THREE_PHASE) THEN
+            surfaceCoverage=0.5*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN
+
+            ! bulkToSurfaceSwappingRates
+            IF ((dustTemp(dstep) .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
+                rate(idx1:idx2) = 0.0
+            ELSE
+                DO i=idx1,idx2
+                    DO j=lbound(iceList,1),ubound(iceList,1)
+                        IF (iceList(j) .eq. re1(i)) THEN
+                        rate(i)= 1 !dsqrt(VDIFF_PREFACTOR*bindingEnergy(j)/mass(iceList(j)))*DEXP(-bindingEnergy(j)/dustTemp(dstep))
+                        END IF
+                    END DO
+                END DO
+            END IF
+
+        END IF
+
+
 
 
         ! These are reactions which are untouched by carlos.
@@ -240,7 +262,6 @@ CONTAINS
         !EXSOLID reactions represent the reactions of excited species on the grain
         idx1=exsolidReacs(1)
         idx2=exsolidReacs(2)
-
         IF (idx1 .ne. idx2) THEN
             !reaction rates calculated outside of UCLCHEM as per Shingledecker et al. 2018 and included in grain network
             !alpha are branching ratios and beta is reaction rate
@@ -289,7 +310,13 @@ CONTAINS
             END IF
         END IF
 
-        CALL bulkSurfaceExchangeReactions(rate,dustTemp(dstep))
+        idx1 = surfSwapReacs(1)
+        idx2 = surfSwapReacs(2)
+        IF ((dustTemp(dstep) .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
+            rate(idx1:idx2) = 0.0
+        ELSE
+            rate(idx1:idx2) = 1.0
+        END IF
 
         idx1=ionopol1Reacs(1)
         idx2=ionopol1Reacs(2)
@@ -304,7 +331,6 @@ CONTAINS
             rate(idx1:idx2)=alpha(idx1:idx2)*beta(idx1:idx2)*(1.0d0+0.0967d0*gama(idx1:idx2)&
             &*dsqrt(300.0d0/gasTemp(dstep))+gama(idx1:idx2)*gama(idx1:idx2)*300.0/(10.526*gasTemp(dstep)))
         END IF
-        lastTemp=gasTemp(dstep)
 
         !turn off reactions outside their temperature range
         WHERE(.not. ExtrapolateRates .and. (gasTemp(dstep) .lt. minTemps)) rate=0.0

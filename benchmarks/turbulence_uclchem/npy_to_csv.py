@@ -54,6 +54,22 @@ def density_to_number_density(density):
     mean_molecular_mass = 1.4168138025 # Calculated separately. Should be ~ constant.
     return density / (mean_molecular_mass * hydrogen_mass)
 
+def kalman_filter(series, process_var=1e-2, meas_var=1e-1, init_error=1e-3):
+    series = np.asarray(series)
+    n = len(series)
+    xhat = np.zeros(n)
+    P = np.zeros(n)
+    K = np.zeros(n)
+    xhat[0] = series[0]
+    P[0] = init_error
+    for k in range(1, n):
+        xhat_minus = xhat[k-1]
+        P_minus = P[k-1] + process_var
+        K[k] = P_minus / (P_minus + meas_var)
+        xhat[k] = xhat_minus + K[k] * (series[k] - xhat_minus)
+        P[k] = (1 - K[k]) * P_minus
+    return xhat    
+
 for benchmark_name, benchmark_info in benchmarks.items():
     benchmark_path = benchmark_info["path"]
     timestep = benchmark_info["timestep"]
@@ -66,8 +82,8 @@ for benchmark_name, benchmark_info in benchmarks.items():
     print(f"Loaded data shape: {data.shape}")
     
     # random_indices = np.random.choice(data.shape[1], size=int(fraction_selected_tracers * data.shape[1]), replace=False)
-    # random_indices = np.random.choice(data.shape[1], size=100, replace=False)
-    random_indices = [10]
+    random_indices = np.random.choice(data.shape[1], size=100, replace=False)
+    # random_indices = [10]
     selected_data = data[:clip:discretization, random_indices, :]
 
     os.makedirs(final_save_path, exist_ok=True)
@@ -89,6 +105,9 @@ for benchmark_name, benchmark_info in benchmarks.items():
         df = df[['model', 'benchmark', 'tracer', 'time', 'gasTemp', 'density', 'av', 'radField']]
         
         df['density'] = density_to_number_density(df['density'].values)
+        
+        df['radField'] = kalman_filter(np.log10(df['radField'].values))
+        df['radField'] = np.power(10, df['radField'])
                 
         csv_filename = os.path.join(final_save_path, f'{benchmark_name}_{discretization}_Tracer_{current_index}.csv')
         df.to_csv(csv_filename, index=False)

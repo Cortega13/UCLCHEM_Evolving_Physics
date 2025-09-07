@@ -435,21 +435,42 @@ def write_odes_f90(
         logging.debug(f"{species_names.index(specie)+1}:{specie}")
         for specie in species_list
     ]
+    
+    # lhreacs = {}
+    # lhdesreacs = {}
+    # # We have to calculate some stuff for Langmuir-Hinshelwood reactions before we do the generate_ode_bit.
+    # for i, reaction in enumerate(reaction_list):
+    #     ind_grain_species = 999999
+    #     matching_grain_idx_r1 = -1
+    #     matching_grain_idx_r2 = -1
+    #     if reaction.get_reaction_type() in ["THERM", "BULKSWAP"]:
+    #         for ind, j in enumerate(species_list):
+    #             if ("@" in j.name or "#" in j.name):
+    #                 if j.name == reaction.get_reactants()[0]:
+    #                     matching_grain_idx = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
+    #                 if j.name == reaction.get_reactants()[1]:
+    #                     matching_grain_idx_r2 = ind + 1
+    #                 if ind < ind_grain_species:
+    #                     ind_grain_species = ind
+        
+    #     if reaction.get_reaction_type() == "LH":
+            
+    
     for i, reaction in enumerate(reaction_list):
         logging.debug(f"RATE({i+1}):{reaction}")
         
         ind_grain_species = 999999
-        therm_desorption_idx = -1
-        if reaction.get_reaction_type() == "THERM":
+        matching_grain_idx_r1 = -1
+        if reaction.get_reaction_type() in ["THERM", "BULKSWAP"]:
             for ind, j in enumerate(species_list):
                 if ("@" in j.name or "#" in j.name):
                     if j.name == reaction.get_reactants()[0]:
-                        therm_desorption_idx = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
+                        matching_grain_idx_r1 = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
                     if ind < ind_grain_species:
                         ind_grain_species = ind
 
-        therm_desorption_idx -= ind_grain_species # subtracts the index of the first grain species so that therm_desorption_idx is based off grain idx only.
-        reaction.generate_ode_bit(i, species_names, therm_desorption_idx)
+        matching_grain_idx_r1 -= ind_grain_species # subtracts the index of the first grain species so that matching_grain_idx is based off grain idx only.
+        reaction.generate_ode_bit(i, species_names, matching_grain_idx_r1)
 
     # then create ODE code and write to file.
     with open(file_name, mode="w") as output:
@@ -581,9 +602,9 @@ USE network
 USE DEFAULTPARAMETERS
 IMPLICIT NONE
 CONTAINS
-SUBROUTINE GETYDOT(RATE, Y, YDOT, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, Tg, Td, AV, G0, CRIR)
+SUBROUTINE GETYDOT(RATE, Y, YDOT, bulkLayersReciprocal, surfaceCoverage, safeMantle, safebulk, D, Tg, Td, AV, G0, CRIR, VDIFF)
 REAL(dp), INTENT(IN) :: RATE(:), Y(:), bulkLayersReciprocal, safeMantle, safebulk, D
-REAL(dp), INTENT(IN), OPTIONAL :: Tg, Td, AV, G0, CRIR
+REAL(dp), INTENT(IN), OPTIONAL :: Tg, Td, AV, G0, CRIR, VDIFF(:)
 REAL(dp), INTENT(INOUT) :: YDOT(:), surfaceCoverage
 REAL(dp) :: totalSwap, LOSS, PROD
     """
