@@ -211,7 +211,7 @@ CONTAINS
             surfaceCoverage=bulkGainFromMantleBuildUp()
 
             
-            CALL calculateReactionRates(abund,safeMantle, h2col, cocol, ccol, rate)
+            CALL calculateReactionRates(abund, safeMantle, rate)
 
             !Integrate chemistry, and return fail if unrecoverable error was reached
             CALL integrateODESystem(successFlag)
@@ -338,6 +338,8 @@ CONTAINS
 
         ydot=0.0
 
+        safeMantle=MAX(1d-30,Y(nSurface))
+        call calculateConditionalRates(Y, safeMantle, rate, Td, Tg, D)
         ! Column densities are fixed for postprocessing data, so don't do this bit
         if (.not. lusecoldens) then
         !changing abundances of H2 and CO can causes oscillation since their rates depend on their abundances

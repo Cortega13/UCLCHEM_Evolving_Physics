@@ -821,9 +821,7 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
         # Carlos moved the reactinos in rates.f90 into here so that they are within odes.f90 instead. 
 
         if self.get_reaction_type() == "PHOTON":
-            alpha = self.get_alpha()
-            gamma = self.get_gamma()
-            ode_bit += f"*{alpha}*dexp(-{gamma}*AV)*G0/1.7"
+            ode_bit += f"*{alpha}*dexp(-({gamma})*AV)*G0/1.7"
             
             # For all solid (bulk&surface) species, decrease rate by ICE_GAS_PHOTO_CROSSSECTION_RATIO (0.3) (Kalvans 2018)
             if "@" in self.get_reactants()[0]:
@@ -834,7 +832,7 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
 
 
         if self.get_reaction_type() == "CRPHOT":
-            ode_bit += f"*{alpha}*{gamma}*(1.0/(1.0-omega))*CRIR*(Tg/300)**({beta})"
+            ode_bit += f"*({alpha})*({gamma})*(1.0/(1.0-omega))*CRIR*(Tg/300)**({beta})"
             
             # For all solid (bulk&surface) species, decrease rate by ICE_GAS_PHOTO_CROSSSECTION_RATIO (0.3) (Kalvans 2018)
             if "@" in self.get_reactants()[0]:
@@ -848,10 +846,10 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
             if gamma == 0.0:
                 ode_bit += f"*{alpha}*(Tg/300.0)**({beta})"
             else:
-                ode_bit += f"*{alpha}*(Tg/300.0)**({beta})*dexp(-{gamma}/Tg)"
+                ode_bit += f"*{alpha}*(Tg/300.0)**({beta})*dexp(-({gamma})/Tg)"
 
         if self.get_reaction_type() == "FREEZE":
-            ode_bit += f"*(1.0+{beta}*16.71d-4/(GRAIN_RADIUS*Tg))*freezeFactor*{alpha}*THERMAL_VEL*dsqrt(Tg/mass(re1({i+1})))*GRAIN_CROSSSECTION_PER_H"
+            ode_bit += f"*(1.0+{beta}*16.71d-4/(GRAIN_RADIUS*Tg))*freezeFactor*({alpha})*THERMAL_VEL*dsqrt(Tg/mass(re1({i+1})))*GRAIN_CROSSSECTION_PER_H"
 
             # Setting the stickingcoefficient for H and H2
             if i+1 == 547:
@@ -864,7 +862,7 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
             ode_bit += f"*(epsilon*({rate}))"
         
         if self.get_reaction_type() == "THERM":
-            ode_bit += f"*VDIFF({matching_grain_idx_r1})* exp(-{gamma}/Td)"
+            ode_bit += f"*VDIFF({matching_grain_idx_r1})* exp(-({gamma})/Td)"
         
         if self.get_reaction_type() == "DEUVCR":
             ode_bit += f"*GRAIN_CROSSSECTION_PER_H*uv_yield*4.875d3*CRIR * (1+(G0/uvcreff)*(1.0/CRIR)*dexp(-1.8*AV))"
@@ -880,5 +878,6 @@ def _generate_reaction_ode_bit(self, i: int, species_names: list, body_count: in
         
         return ode_bit
 
-# def diffusionReactionRate():
-#     f"alpha({i+1}) *max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma))))/(max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma)))) + (VDIFF({matching_grain_idx_r1})*dexp(-bindingEnergy({matching_grain_idx_r1})/Td) + VDIFF({matching_grain_idx_r2})*dexp(-bindingEnergy({matching_grain_idx_r2})/Td)) + (VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))))* VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN"
+def diffusionReactionRate(i: int, matching_grain_idx_r1: int, matching_grain_idx_r2: int):
+    rate = f"alpha({i+1})*max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma))))/(max(VDIFF({matching_grain_idx_r1}),VDIFF({matching_grain_idx_r2})) * dexp(-(min(gamma/Td, 2.0d0 *CHEMICAL_BARRIER_THICKNESS/REDUCED_PLANCK * dsqrt(2.0d0*AMU*reducedMasses({i+1})*K_BOLTZ*gamma)))) + (VDIFF({matching_grain_idx_r1})*dexp(-bindingEnergy({matching_grain_idx_r1})/Td) + VDIFF({matching_grain_idx_r2})*dexp(-bindingEnergy({matching_grain_idx_r2})/Td)) + (VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))))* VDIFF({matching_grain_idx_r1})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r1})/Td)+ (VDIFF({matching_grain_idx_r2})*dexp(-DIFFUSION_BIND_RATIO*bindingEnergy({matching_grain_idx_r2})/Td))*GAS_DUST_DENSITY_RATIO/NUM_SITES_PER_GRAIN"
+    return rate

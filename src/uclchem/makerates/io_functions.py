@@ -15,7 +15,7 @@ import numpy as np
 from uclchem.constants import PHYSICAL_PARAMETERS
 
 from .network import Network
-from .reaction import Reaction, reaction_types
+from .reaction import Reaction, reaction_types, diffusionReactionRate
 from .species import Species
 
 
@@ -436,29 +436,37 @@ def write_odes_f90(
         for specie in species_list
     ]
     
-    # lhreacs = {}
-    # lhdesreacs = {}
-    # # We have to calculate some stuff for Langmuir-Hinshelwood reactions before we do the generate_ode_bit.
-    # for i, reaction in enumerate(reaction_list):
-    #     ind_grain_species = 999999
-    #     matching_grain_idx_r1 = -1
-    #     matching_grain_idx_r2 = -1
-    #     if reaction.get_reaction_type() in ["THERM", "BULKSWAP"]:
-    #         for ind, j in enumerate(species_list):
-    #             if ("@" in j.name or "#" in j.name):
-    #                 if j.name == reaction.get_reactants()[0]:
-    #                     matching_grain_idx = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
-    #                 if j.name == reaction.get_reactants()[1]:
-    #                     matching_grain_idx_r2 = ind + 1
-    #                 if ind < ind_grain_species:
-    #                     ind_grain_species = ind
+    lhreacs = []
+    lhdesreacs = []
+    HfreezeReaction = None # We need to record this reaction so we can later replace the EFreeze reaction with it. 
+    # We have to calculate some stuff for Langmuir-Hinshelwood reactions before we do the generate_ode_bit.
+    for i, reaction in enumerate(reaction_list):
+        ind_grain_species = 999999
+        matching_grain_idx_r1 = -1
+        matching_grain_idx_r2 = -1
+        if reaction.get_reaction_type() in ["LH", "LHDES"]:
+            for ind, j in enumerate(species_list):
+                if ("@" in j.name or "#" in j.name):
+                    if j.name == reaction.get_reactants()[0]:
+                        matching_grain_idx_r1 = ind + 1 # We do + 1 because fortrans 0th index is 1 not 0. Pythons is 0.
+                    if j.name == reaction.get_reactants()[1]:
+                        matching_grain_idx_r2 = ind + 1
+                    if ind < ind_grain_species:
+                        ind_grain_species = ind
         
-    #     if reaction.get_reaction_type() == "LH":
-            
+        if reaction.get_reaction_type() == "LH":
+            lhreacs.append(diffusionReactionRate(i, matching_grain_idx_r1, matching_grain_idx_r2))
+        
+        if reaction.get_reaction_type() == "LHDES":
+            reactant1 = reaction.get_reactants()[0]
+            if not ("@" in reactant1 or "#" in reactant1):
+                lhdesreacs.append(lhreacs[len(lhdesreacs)])
+                
     
     for i, reaction in enumerate(reaction_list):
         logging.debug(f"RATE({i+1}):{reaction}")
-        
+        if reaction.get_reaction_type() == "LHDES":
+            print(i)
         ind_grain_species = 999999
         matching_grain_idx_r1 = -1
         if reaction.get_reaction_type() in ["THERM", "BULKSWAP"]:

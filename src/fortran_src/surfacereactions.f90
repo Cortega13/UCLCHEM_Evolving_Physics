@@ -201,7 +201,7 @@ double precision FUNCTION desorptionFraction(reacIndx)
         
     desorptionFraction = dexp((-maxBindingEnergy*real(degreesOfFreedom)) / (epsilonCd * deltaEnthalpy))
     
-   IF (deltaEnthalpy.lt.0.d0) THEN        !< If reaction is endothermic, no CRD
+    IF (deltaEnthalpy.lt.0.d0) THEN        !< If reaction is endothermic, no CRD
         desorptionFraction = 0.d0
     END IF
     

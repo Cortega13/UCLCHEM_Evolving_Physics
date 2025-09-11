@@ -83,7 +83,7 @@ for benchmark_name, benchmark_info in benchmarks.items():
     
     # random_indices = np.random.choice(data.shape[1], size=int(fraction_selected_tracers * data.shape[1]), replace=False)
     random_indices = np.random.choice(data.shape[1], size=100, replace=False)
-    # random_indices = [10]
+    random_indices = [26506]
     selected_data = data[:clip:discretization, random_indices, :]
 
     os.makedirs(final_save_path, exist_ok=True)
@@ -106,8 +106,18 @@ for benchmark_name, benchmark_info in benchmarks.items():
         
         df['density'] = density_to_number_density(df['density'].values)
         
-        df['radField'] = kalman_filter(np.log10(df['radField'].values))
+        df['radField'] = np.log10(df['radField'].values)
+        df['radField'] = df['radField'].rolling(window=20, center=True, min_periods=1).mean()
+
         df['radField'] = np.power(10, df['radField'])
+        
+        df['av'] = np.log10(df['av'].values)
+        df['av'] = df['av'].rolling(window=20, center=True, min_periods=1).mean()
+
+        df['av'] = np.power(10, df['av'])
+        
+        # df['radField'] = kalman_filter(np.log10(df['radField'].values))
+        # df['radField'] = np.power(10, df['radField'])
                 
         csv_filename = os.path.join(final_save_path, f'{benchmark_name}_{discretization}_Tracer_{current_index}.csv')
         df.to_csv(csv_filename, index=False)

@@ -8,25 +8,97 @@ MODULE RATES
     use photoreactions, only: H2PhotoDissRate, COPhotoDissRate, cIonizationRate, ICE_GAS_PHOTO_CROSSSECTION_RATIO
     IMPLICIT NONE
 CONTAINS
-    SUBROUTINE calculateReactionRates(abund, safemantle,  h2col, cocol, ccol, rate)
-        REAL(dp), INTENT(IN) :: abund(:, :), safemantle, h2col, cocol, ccol
+    SUBROUTINE calculateConditionalRates(Y, safemantle, rate, Td, Tg, D)
+        REAL(dp), INTENT(IN) :: Y(:), safemantle, Td, Tg, D
+        REAL(dp), INTENT(INOUT) :: rate(:)
+        INTEGER:: idx1,idx2
+        INTEGER(dp) :: i,j
+
+        ! lhdes
+
+        idx1=descrReacs(1)
+        idx2=descrReacs(2)
+        IF (safeMantle .gt. MIN_SURFACE_ABUND) THEN
+            rate(idx1:idx2) = 4.0*pi*zeta*1.64d-4*(GRAIN_SURFACEAREA_PER_H)*phi
+            WHERE(gama(idx1:idx2) .gt. ebmaxcr) rate(idx1:idx2)=0.0 
+        ELSE
+            rate(idx1:idx2) = 0.0
+        ENDIF
+        WHERE((rate(freezePartners)*Y(re1(freezePartners))*D)&
+        <MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+
+        idx1 = bulkswapReacs(1)
+        idx2 = bulkswapReacs(2)
+        IF ((Td .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
+            rate(idx1:idx2) = 0.0
+        ELSE
+            DO i=idx1,idx2
+                DO j=lbound(iceList,1),ubound(iceList,1)
+                    IF (iceList(j) .eq. re1(i)) THEN
+                    rate(i)= 1 
+                    END IF
+                END DO
+            END DO
+        END IF
+
+        idx1=deuvcrReacs(1)
+        idx2=deuvcrReacs(2)
+        IF (safeMantle .gt. MIN_SURFACE_ABUND) THEN
+                rate(idx1:idx2) = 1
+            WHERE(gama(idx1:idx2) .gt. ebmaxuvcr) rate(idx1:idx2)=0.0 
+        ELSE
+            rate(idx1:idx2) = 0.0
+        ENDIF
+        WHERE((rate(freezePartners)*Y(re1(freezePartners))*D)&
+        &<MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+
+        idx1=thermReacs(1)
+        idx2=thermReacs(2)
+        DO j=idx1,idx2
+            DO i=lbound(iceList,1),ubound(iceList,1)
+                IF (iceList(i) .eq. re1(j)) THEN
+                    rate(j)= 1
+                END IF
+            END DO
+        END DO
+        WHERE(rate(freezePartners)*Y(re1(freezePartners))*D&
+        &<MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+        IF (safeMantle .lt. MIN_SURFACE_ABUND) rate(idx1:idx2)=0.0
+
+        idx1=desoh2Reacs(1)
+        idx2=desoh2Reacs(2)
+        IF (safeMantle .gt. MIN_SURFACE_ABUND) THEN
+            rate(idx1:idx2) = 1
+            WHERE(gama(idx1:idx2) .gt. ebmaxh2) rate(idx1:idx2)=0.0 
+        ELSE
+            rate(idx1:idx2) = 0.0
+        ENDIF
+        WHERE((rate(freezePartners)*Y(re1(freezePartners)))<&
+        &MIN_SURFACE_ABUND*rate(idx1:idx2)) rate(freezePartners)=0.0
+
+        idx1 = surfSwapReacs(1)
+        idx2 = surfSwapReacs(2)
+        IF ((Td .gt. MAX_GRAIN_TEMP) .or. (safeMantle .lt. MIN_SURFACE_ABUND)) THEN
+            rate(idx1:idx2) = 0.0
+        ELSE
+            rate(idx1:idx2) = 1.0
+        END IF
+
+    END SUBROUTINE calculateConditionalrates
+
+    SUBROUTINE calculateReactionRates(abund, safemantle, rate)
+        REAL(dp), INTENT(IN) :: abund(:, :), safemantle
         REAL(dp), INTENT(INOUT) :: rate(:)
         INTEGER:: idx1,idx2
         REAL(dp) :: vA,vB
         INTEGER(dp) :: i,j
         ! REAL(dp) :: vdiff(:)
-    
-        !Calculate all reaction rates
-        !Assuming the user has temperature changes or uses the desorption features of phase 1,
-        !these need to be recalculated every time step.
 
         ! Up here we will include all the reactions which are included in the odes.f90 already by carlos. Note: We have to manually set rate=1 to initalize them.
         !Initialize twobody reactions. 
         idx1=twobodyReacs(1)
         idx2=twobodyReacs(2)
-        IF (lastTemp .ne. gasTemp(dstep)) THEN
-            rate(idx1:idx2) = 1 ! alpha(idx1:idx2)*((gasTemp(dstep)/300.)**beta(idx1:idx2))*dexp(-gama(idx1:idx2)/gasTemp(dstep)) 
-        END IF
+        rate(idx1:idx2) = 1 ! alpha(idx1:idx2)*((gasTemp(dstep)/300.)**beta(idx1:idx2))*dexp(-gama(idx1:idx2)/gasTemp(dstep)) 
 
         !UV photons, radfield has (factor of 1.7 conversion from habing to Draine)
         idx1=photonReacs(1)
@@ -340,34 +412,34 @@ CONTAINS
 
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-!Freeze out determined by rate of collisions with grain
-!No sticking coefficient is used because typical values are >0.95 below 150 K
-! eg Le Bourlot et al. 2013, Molpeceres et al. 2020
-!Above 150 K, thermal desorption will completely remove grain species
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FUNCTION freezeOutRate(idx1,idx2) RESULT(freezeRates)
-    REAL(dp) :: freezeRates(idx2-idx1+1)
-    INTEGER :: idx1,idx2
-    
-    !additional factor for ions (beta=0 for neutrals)
-    freezeRates=1.0+beta(idx1:idx2)*16.71d-4/(GRAIN_RADIUS*gasTemp(dstep))
-    IF ((freezeFactor .eq. 0.0) .or. (dustTemp(dstep) .gt. MAX_GRAIN_TEMP)) then
-        freezeRates=0.0
-    ELSE
-        freezeRates=freezeRates*freezeFactor*alpha(idx1:idx2)*THERMAL_VEL*dsqrt(gasTemp(dstep)/mass(re1(idx1:idx2)))*GRAIN_CROSSSECTION_PER_H
-    END IF
-
-    END FUNCTION freezeOutRate
-
-
-    FUNCTION stickingCoefficient(stickingZero,criticalTemp,gasTemp) RESULT(stickingCoeff)
-        !Sticking coefficient for freeze out taken from Chaabouni et al. 2012 A&A 538 Equation 1
-        REAL(dp) :: stickingCoeff
-        REAL(dp) :: stickingZero,criticalTemp,gasTemp,tempRatio
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !
+    !Freeze out determined by rate of collisions with grain
+    !No sticking coefficient is used because typical values are >0.95 below 150 K
+    ! eg Le Bourlot et al. 2013, Molpeceres et al. 2020
+    !Above 150 K, thermal desorption will completely remove grain species
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    FUNCTION freezeOutRate(idx1,idx2) RESULT(freezeRates)
+        REAL(dp) :: freezeRates(idx2-idx1+1)
+        INTEGER :: idx1,idx2
         
-        stickingCoeff=stickingZero*(1.0d0+(2.5d0)*(gasTemp/criticalTemp))/((1.0d0+(gasTemp/criticalTemp))**(2.5d0))
-    END FUNCTION stickingCoefficient
+        !additional factor for ions (beta=0 for neutrals)
+        freezeRates=1.0+beta(idx1:idx2)*16.71d-4/(GRAIN_RADIUS*gasTemp(dstep))
+        IF ((freezeFactor .eq. 0.0) .or. (dustTemp(dstep) .gt. MAX_GRAIN_TEMP)) then
+            freezeRates=0.0
+        ELSE
+            freezeRates=freezeRates*freezeFactor*alpha(idx1:idx2)*THERMAL_VEL*dsqrt(gasTemp(dstep)/mass(re1(idx1:idx2)))*GRAIN_CROSSSECTION_PER_H
+        END IF
+
+        END FUNCTION freezeOutRate
+
+
+        FUNCTION stickingCoefficient(stickingZero,criticalTemp,gasTemp) RESULT(stickingCoeff)
+            !Sticking coefficient for freeze out taken from Chaabouni et al. 2012 A&A 538 Equation 1
+            REAL(dp) :: stickingCoeff
+            REAL(dp) :: stickingZero,criticalTemp,gasTemp,tempRatio
+            
+            stickingCoeff=stickingZero*(1.0d0+(2.5d0)*(gasTemp/criticalTemp))/((1.0d0+(gasTemp/criticalTemp))**(2.5d0))
+        END FUNCTION stickingCoefficient
 
 END MODULE RATES
